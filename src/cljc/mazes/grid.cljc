@@ -1,22 +1,22 @@
 (ns mazes.grid
   "Basic grid structure for maze wrangling."
-  (:require [clojure.spec :as s]
-            [com.rpl.specter.macros :refer [transform]]
-            [com.rpl.specter :as specter]))
+  (:require [clojure.spec :as spec]
+            [com.rpl.specter :as s]
+            [com.rpl.specter.macros :as sm]))
 
-(s/def ::x integer?)
-(s/def ::y integer?)
-(s/def ::width integer?)
-(s/def ::height integer?)
-(s/def ::coordinates (s/tuple integer? integer?))
-(s/def ::direction #{::n ::ne ::e ::se ::s ::sw ::w ::nw})
+(spec/def ::x integer?)
+(spec/def ::y integer?)
+(spec/def ::width integer?)
+(spec/def ::height integer?)
+(spec/def ::coordinates (spec/tuple integer? integer?))
+(spec/def ::direction #{::n ::ne ::e ::se ::s ::sw ::w ::nw})
 
 ;; Sufficient given a uniform grid.
-(s/def ::exits (s/coll-of ::direction :kind set?))
+(spec/def ::exits (spec/coll-of ::direction :kind set?))
 
-(s/def ::cell (s/keys :req [::x ::y ::exits]))
-(s/def ::row (s/coll-of ::cell))
-(s/def ::grid (s/coll-of ::row))
+(spec/def ::cell (spec/keys :req [::x ::y ::exits]))
+(spec/def ::row (spec/coll-of ::cell))
+(spec/def ::grid (spec/coll-of ::row))
 
 ;; Offsets by direction; add to a cell's coordinates to move.
 (def translations
@@ -48,9 +48,8 @@
        (<= 0 x)
        (< y (count grid))
        (< x (count (nth grid y)))))
-
-(s/fdef grid-contains?
-  :args (s/cat :grid ::grid :x ::x :y ::y)
+(spec/fdef grid-contains?
+  :args (spec/cat :grid ::grid :x ::x :y ::y)
   :ret boolean?)
 
 (defn create-cell
@@ -87,7 +86,7 @@
 
 
 ;; Returns the cell in the supplied direction, or nil.
-(defn- move [grid cell direction]
+(defn move [grid cell direction]
   (let [{ax ::x ay ::y} cell
         [bx by] (map + [ax ay] (direction translations))]
     (find-cell grid bx by)))
@@ -98,7 +97,7 @@
 
 ;; A Specter path to the supplied cell.
 (defn- path-to [cell]
-  [(specter/keypath (::y cell)) (specter/keypath (::x cell))])
+  [(s/keypath (::y cell)) (s/keypath (::x cell))])
 
 (defn link
   "Given a grid, a cell, and a direction, returns a new grid modified to have a
@@ -107,9 +106,9 @@
   [grid cell direction]
   (if-let [neighbor (move grid cell direction)]
     (->> grid
-      (transform (path-to cell)
-                 #(add-exit % direction))
-      (transform (path-to neighbor)
-                 #(add-exit % (direction converse-directions))))
+      (sm/transform (path-to cell)
+                    #(add-exit % direction))
+      (sm/transform (path-to neighbor)
+                    #(add-exit % (direction converse-directions))))
     ; if neighbor was not found, return unchanged
     grid))

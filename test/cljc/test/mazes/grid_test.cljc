@@ -1,9 +1,6 @@
-(ns mazes.grid-test
+(ns test.mazes.grid-test
   (:require [clojure.test :refer :all]
             [mazes.grid :refer :all :as grid]))
-
-(deftest sanity
-  (is (= true true)))
 
 (deftest test-create-cell
   (let [c (grid/create-cell 0 0)]
