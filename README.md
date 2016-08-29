@@ -1,14 +1,8 @@
 # mazes
 
-A Clojure library designed to ... well, that part is up to you.
+A playground for maze algorithm experimentation. Beginning with exercises from
+Jamis Buck's book _Mazes for Programmers_.
 
 ## Usage
 
-FIXME
-
-## License
-
-Copyright © 2016 FIXME
-
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
+Designed to be used entirely through tests and the REPL.
