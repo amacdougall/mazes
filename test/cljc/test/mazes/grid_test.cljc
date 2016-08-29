@@ -1,6 +1,9 @@
 (ns test.mazes.grid-test
   (:require [clojure.test :refer :all]
+            [clojure.spec.test :as stest]
             [mazes.grid :refer :all :as grid]))
+
+(stest/instrument)
 
 (deftest test-create-cell
   (let [c (grid/create-cell 0 0)]
@@ -36,6 +39,20 @@
     (is (not (nil? random-cell)))
     (is (grid-contains? grid rx ry))
     (is (= random-cell (find-cell grid rx ry)))))
+
+(deftest test-next-cell
+  (let [grid (create-grid 2 2)
+        first-cell (find-cell grid 0 0)
+        row-end-cell (find-cell grid 1 0)
+        grid-end-cell (find-cell grid 1 1)]
+    (let [cell (next-cell grid first-cell)]
+      (is (not (nil? cell)))
+      (is (= [1 0] ((juxt ::grid/x ::grid/y) cell))))
+    (let [cell (next-cell grid row-end-cell)]
+      (is (not (nil? cell)))
+      (is (= [0 1] ((juxt ::grid/x ::grid/y) cell))))
+    (let [cell (next-cell grid grid-end-cell)]
+      (is (nil? cell)))))
 
 (deftest test-link
   (let [grid (create-grid 2 1)

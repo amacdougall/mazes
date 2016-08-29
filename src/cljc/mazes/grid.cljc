@@ -57,6 +57,9 @@
   empty exits hash."
   [x y]
   {::x x, ::y y, ::exits #{}})
+(spec/fdef create-cell
+  :args (spec/cat :x ::x :y ::y)
+  :ret ::cell)
 
 (defn find-cell
   "Given a grid and x and y coordinates, returns the cell at that location in
@@ -65,16 +68,25 @@
   (if (grid-contains? grid x y)
     (-> grid (nth y) (nth x))
     nil))
+(spec/fdef find-cell
+  :args (spec/cat :grid ::grid :x ::x :y ::y)
+  :ret (spec/nilable ::cell))
 
 (defn random-cell
   "Given a grid, returns a random cell."
   [grid]
   (find-cell grid (rand-int (count grid)) (rand-int (count (first grid)))))
+(spec/fdef random-cell
+  :args (spec/cat :grid ::grid)
+  :ret ::cell)
 
 (defn all-cells
   "Given a grid, returns a sequence of all cells in the grid."
   [grid]
   (flatten grid))
+(spec/fdef all-cells
+  :args (spec/cat :grid ::grid)
+  :ret (spec/coll-of ::cell))
 
 (defn create-grid
   "Returns a grid of unconnected cells with the supplied number of columns
@@ -83,16 +95,35 @@
   (->> (for [y (range 0 height) x (range 0 width)] (create-cell x y))
     (partition width)
     (mapv (partial into []))))
-
+(spec/fdef create-grid
+  :args (spec/cat :width integer? :height integer?)
+  :ret ::grid)
 
 ;; Returns the cell in the supplied direction, or nil.
 (defn move [grid cell direction]
   (let [{ax ::x ay ::y} cell
         [bx by] (map + [ax ay] (direction translations))]
     (find-cell grid bx by)))
+(spec/fdef move
+  :args (spec/cat :grid ::grid :cell ::cell :direction ::direction)
+  :ret (spec/nilable ::cell))
+
+(defn next-cell
+  "Given a grid and a cell, returns the next cell in the row, the first cell in
+  the following row, or nil."
+  [grid cell]
+  (or (move grid cell ::e)
+      (find-cell grid 0 (inc (::y cell)))
+      nil))
+(spec/fdef next-cell
+  :args (spec/cat :grid ::grid :cell ::cell)
+  :ret (spec/nilable ::cell))
 
 (defn has-exit? [cell direction]
   (contains? (::exits cell) direction))
+(spec/fdef has-exit?
+  :args (spec/cat :cell ::cell :direction ::direction)
+  :ret boolean?)
 
 ;; Returns the cell, with the supplied exit added.
 (defn- add-exit [cell direction]
@@ -115,3 +146,6 @@
                     #(add-exit % (direction converse-directions))))
     ; if neighbor was not found, return unchanged
     grid))
+(spec/fdef link
+  :args (spec/cat :grid ::grid :cell ::cell :direction ::direction)
+  :ret ::grid)
