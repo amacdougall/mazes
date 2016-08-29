@@ -91,6 +91,9 @@
         [bx by] (map + [ax ay] (direction translations))]
     (find-cell grid bx by)))
 
+(defn has-exit? [cell direction]
+  (contains? (::exits cell) direction))
+
 ;; Returns the cell, with the supplied exit added.
 (defn- add-exit [cell direction]
   (update cell ::exits conj direction))
