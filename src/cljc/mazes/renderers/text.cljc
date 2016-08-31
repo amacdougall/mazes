@@ -1,7 +1,6 @@
 (ns mazes.renderers.text
-  (:require [mazes.grid :as grid]
-            [com.rpl.specter :as s]
-            [com.rpl.specter.macros :as sm]))
+  "Renderer which generates simple ASCII art for maze grids."
+  (:require [mazes.grid :as grid]))
 
 (def body-east-open "    ")
 (def body-east-wall "   |")
