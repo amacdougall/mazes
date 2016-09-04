@@ -15,6 +15,17 @@
              :width 400
              :height 300}})
 
+(def default-stroke-attributes
+  {:stroke-width 2
+   :stroke-linejoin "miter"
+   :stroke-linecap "square"})
+
+(defn rect [attributes]
+  [:rect (merge attributes default-stroke-attributes)])
+
+(defn line [attributes]
+  [:line (merge attributes default-stroke-attributes)])
+
 (defn svg
   ([]
    (svg default-svg-attributes))
