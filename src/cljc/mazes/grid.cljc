@@ -149,3 +149,19 @@
 (spec/fdef link
   :args (spec/cat :grid ::grid :cell ::cell :direction ::direction)
   :ret ::grid)
+
+(defn column-count
+  "Given a grid, returns the number of columns in the grid."
+  [grid]
+  (count (first grid)))
+(spec/fdef column-count
+  :args (spec/cat :grid ::grid)
+  :ret int?)
+
+(defn row-count
+  "Given a grid, returns the number of rows in the grid."
+  [grid]
+  (count grid))
+(spec/fdef row-count
+  :args (spec/cat :grid ::grid)
+  :ret int?)

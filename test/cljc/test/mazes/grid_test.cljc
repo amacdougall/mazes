@@ -64,3 +64,11 @@
     (is (contains? (::grid/exits cell-b) ::grid/w))
     (is (= 1 (count (::grid/exits cell-a))))
     (is (= 1 (count (::grid/exits cell-b))))))
+
+(deftest test-column-count
+  (let [grid (create-grid 20 20)]
+    (is (= 20 (column-count grid)))))
+
+(deftest test-row-count
+  (let [grid (create-grid 20 20)]
+    (is (= 20 (row-count grid)))))
