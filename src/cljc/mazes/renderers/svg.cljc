@@ -96,6 +96,20 @@
       :cell-v-spacing (/ (- cell-area-height (* cell-height rows))
                          (- rows 1))})))
 
+(defn render-cell
+  "Given a render-environment map and a ::grid/cell map, returns an SVG group
+  which displays the cell."
+  [render-env cell]
+  [:g
+   [:rect {:x (* (::grid/x cell)
+                 (+ (:cell-width render-env)
+                    (:cell-h-spacing render-env)))
+           :y (* (::grid/y cell)
+                 (+ (:cell-height render-env)
+                    (:cell-v-spacing render-env)))
+           :width (:cell-width render-env)
+           :height (:cell-height render-env)}]])
+
 (defn render
   "Given a grid, returns an SVG rendering as Hiccup data structures. Accepts an
   options map with the following keys. All numeric values are in user units.
@@ -109,5 +123,3 @@
    (svg))
   ([grid options]
    (svg options)))
-
-

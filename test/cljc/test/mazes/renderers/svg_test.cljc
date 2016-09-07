@@ -113,3 +113,55 @@
                  (* 2 margin)))
           "Cell heights, separated by v-spacings, must equal total-width minus
           margin on each side."))))
+
+(deftest test-render-cell
+  (let [rows 8
+        columns 4
+        grid (grid/create-grid rows columns)
+        env (render-environment grid)
+        top-left-cell (grid/find-cell grid 0 0)
+        top-left (render-cell env top-left-cell)
+        top-right-cell (grid/find-cell grid (- rows 1) 0)
+        top-right (render-cell env top-right-cell)
+        bottom-left-cell (grid/find-cell grid 0 (- columns 1))
+        bottom-left (render-cell env bottom-left-cell)
+        bottom-right-cell (grid/find-cell grid (- rows 1) (- columns 1))
+        bottom-right (render-cell env bottom-right-cell)
+        ; given a tag name symbol, such as :rect, return a Specter path to find
+        ; it in a render-cell result
+        tag-path (fn [tag] [s/ALL vector? #(= tag (first %)) s/LAST])
+        ; rect-attrs and line-attrs take a render-cell result: a <g> tag
+        rect-attrs (fn [g] (sm/select-any (tag-path :rect) g))
+        line-attrs (fn [g] (sm/select-any (tag-path :line) g))]
+    (is (vector? top-left))
+    (is (= :g (first top-left)))
+    (is (some (partial = :rect)
+              (sm/select [s/ALL vector? s/FIRST] top-left)))
+    (let [attrs (rect-attrs top-left)]
+      (is (== 0 (:x attrs)))
+      (is (== 0 (:y attrs)))
+      (is (== (:cell-width env) (:width attrs)))
+      (is (== (:cell-height env) (:height attrs))))
+    (let [attrs (rect-attrs top-right)]
+      (is (== (+ (* (::grid/x top-right-cell) (:cell-width env))
+                 (* (::grid/x top-right-cell) (:cell-h-spacing env)))
+              (:x attrs)))
+      (is (== 0 (:y attrs)))
+      (is (== (:cell-width env) (:width attrs)))
+      (is (== (:cell-height env) (:height attrs))))
+    (let [attrs (rect-attrs bottom-left)]
+      (is (== 0 (:x attrs)))
+      (is (== (+ (* (::grid/y bottom-left-cell) (:cell-height env))
+                 (* (::grid/y bottom-left-cell) (:cell-v-spacing env)))
+              (:y attrs)))
+      (is (== (:cell-width env) (:width attrs)))
+      (is (== (:cell-height env) (:height attrs))))
+    (let [attrs (rect-attrs bottom-right)]
+      (is (== (+ (* (::grid/x bottom-right-cell) (:cell-width env))
+                 (* (::grid/x bottom-right-cell) (:cell-h-spacing env)))
+              (:x attrs)))
+      (is (== (+ (* (::grid/y bottom-right-cell) (:cell-height env))
+                 (* (::grid/y bottom-right-cell) (:cell-v-spacing env)))
+              (:y attrs)))
+      (is (== (:cell-width env) (:width attrs)))
+      (is (== (:cell-height env) (:height attrs))))))
