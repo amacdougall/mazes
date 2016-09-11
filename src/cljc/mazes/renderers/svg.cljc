@@ -52,8 +52,8 @@
 
 (defn render-environment
   "Given a grid and an options map, returns a map of values to be used in
-  rendering computations. The options map defaults to the values in
-  default-render-environment-options.
+  rendering computations. All optional keys default to the corresponding value
+  in default-render-environment-options.
 
   Options accepted:
     :total-width - Optional. The total width of the render area. Equal to the
@@ -98,29 +98,34 @@
       :cell-v-spacing (/ (- cell-area-height (* cell-height rows))
                          (- rows 1))})))
 
+(defn room-geometry
+  "Given a render-environment map and a ::grid/cell, returns a map with keys :x,
+  :y, :width, and :height, which can be used as attributes of an SVG rect."
+  [{:keys [margin cell-width cell-height cell-h-spacing cell-v-spacing]} cell]
+  {:x (+ margin (* (::grid/x cell) (+ cell-width cell-h-spacing)))
+   :y (+ margin (* (::grid/y cell) (+ cell-height cell-v-spacing)))
+   :width cell-width
+   :height cell-height})
+
 (defn render-cell
-  "Given a render-environment map and a ::grid/cell map, returns an SVG group
+  "Given a render-environment map and a ::grid/cell, returns an SVG group
   which displays the cell."
   [render-env cell]
   [:g
-   [:rect {:x (* (::grid/x cell)
-                 (+ (:cell-width render-env)
-                    (:cell-h-spacing render-env)))
-           :y (* (::grid/y cell)
-                 (+ (:cell-height render-env)
-                    (:cell-v-spacing render-env)))
-           :width (:cell-width render-env)
-           :height (:cell-height render-env)}]])
+   [:rect (room-geometry render-env cell)]])
 
 (defn anchor-point
-  "Given a render-cell result and the ::grid/direction keyword for one of its
+  "Given a room-geometry result and the ::grid/direction keyword for one of its
   corners, returns an [x y] coordinate pair vector for that point on the
-  rendered cell. For instance, (anchor-point cell ::grid/nw) returns the
+  rendered cell. For instance, (anchor-point geometry ::grid/nw) returns the
   coordinates of the top-left corner of the rect."
-  [g direction]
-  (let [{:keys [x y width height]} (sm/select-any [s/ALL vector? #(= :rect (first %)) s/LAST] g)
-        left x, h-center (+ x (/ width 2)), right (+ x width)
-        top y, v-center (+ y (/ height 2)), bottom (+ y height)]
+  [{:keys [x y width height]} direction]
+  (let [left x
+        h-center (+ x (/ width 2))
+        right (+ x width)
+        top y
+        v-center (+ y (/ height 2))
+        bottom (+ y height)]
     (condp = direction
       ::grid/n  [h-center top]
       ::grid/ne [right top]
@@ -131,7 +136,7 @@
       ::grid/w  [left v-center]
       ::grid/nw [left top])))
 (spec/fdef anchor-point
-  :args (spec/cat :cell vector? :grid ::grid/direction)
+  :args (spec/cat :geometry map? :grid ::grid/direction)
   :ret (spec/coll-of number? :min-count 2 :max-count 2))
 
 (defn render
