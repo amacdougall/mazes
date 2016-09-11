@@ -165,3 +165,14 @@
               (:y attrs)))
       (is (== (:cell-width env) (:width attrs)))
       (is (== (:cell-height env) (:height attrs))))))
+
+(deftest test-anchor-point
+  (let [g [:g [:rect {:x 10 :y 20 :width 100 :height 200}]]]
+    (is (equal-numbers? [60 20] (anchor-point g ::grid/n)))
+    (is (equal-numbers? [110 20] (anchor-point g ::grid/ne)))
+    (is (equal-numbers? [110 120] (anchor-point g ::grid/e)))
+    (is (equal-numbers? [110 220] (anchor-point g ::grid/se)))
+    (is (equal-numbers? [60 220] (anchor-point g ::grid/s)))
+    (is (equal-numbers? [10 220] (anchor-point g ::grid/sw)))
+    (is (equal-numbers? [10 120] (anchor-point g ::grid/w)))
+    (is (equal-numbers? [10 20] (anchor-point g ::grid/nw)))))

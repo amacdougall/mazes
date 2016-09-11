@@ -2,7 +2,9 @@
   "Renderer which generates SVG markup for maze grids. The render function
   produces Hiccup data; use the render-svg function to get an SVG string."
   (:require [mazes.grid :as grid]
-            [clojure.spec :as spec]))
+            [clojure.spec :as spec]
+            [com.rpl.specter :as s]
+            [com.rpl.specter.macros :as sm]))
 
 (def default-svg-attributes
   {:version "1.1"
@@ -109,6 +111,28 @@
                     (:cell-v-spacing render-env)))
            :width (:cell-width render-env)
            :height (:cell-height render-env)}]])
+
+(defn anchor-point
+  "Given a render-cell result and the ::grid/direction keyword for one of its
+  corners, returns an [x y] coordinate pair vector for that point on the
+  rendered cell. For instance, (anchor-point cell ::grid/nw) returns the
+  coordinates of the top-left corner of the rect."
+  [g direction]
+  (let [{:keys [x y width height]} (sm/select-any [s/ALL vector? #(= :rect (first %)) s/LAST] g)
+        left x, h-center (+ x (/ width 2)), right (+ x width)
+        top y, v-center (+ y (/ height 2)), bottom (+ y height)]
+    (condp = direction
+      ::grid/n  [h-center top]
+      ::grid/ne [right top]
+      ::grid/e  [right v-center]
+      ::grid/se [right bottom]
+      ::grid/s  [h-center bottom]
+      ::grid/sw [left bottom]
+      ::grid/w  [left v-center]
+      ::grid/nw [left top])))
+(spec/fdef anchor-point
+  :args (spec/cat :cell vector? :grid ::grid/direction)
+  :ret (spec/coll-of number? :min-count 2 :max-count 2))
 
 (defn render
   "Given a grid, returns an SVG rendering as Hiccup data structures. Accepts an
