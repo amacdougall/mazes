@@ -18,8 +18,8 @@
              :height 800}})
 
 (def default-render-environment-options
-  {:total-width (:width default-svg-attributes)
-   :total-height (:height default-svg-attributes)
+  {:width (:width default-svg-attributes)
+   :height (:height default-svg-attributes)
    :margin 20
    :size-spacing-ratio 0.75})
 
@@ -58,9 +58,9 @@
   in default-render-environment-options.
 
   Options accepted:
-    :total-width - Optional. The total width of the render area. Equal to the
+    :width - Optional. The total width of the render area. Equal to the
       width property of the SVG tag.
-    :total-height - Optional. The total height of the render area. Equal to the
+    :height - Optional. The total height of the render area. Equal to the
       height property of the SVG tag.
     :size-spacing-ratio - Optional. A value between 0 and 1, defining the ratio
       between the size of cell and the space between them.
@@ -71,8 +71,8 @@
     :grid - The grid which is being rendered; rendering functions may use this
       for additional information. For instance, drawing connections between
       rooms is simplified when grid/find-cell is available.
-    :total-width - Passed through from input options.
-    :total-height - Passed through from input options.
+    :width - Passed through from input options.
+    :height - Passed through from input options.
     :margin - Passed through from input options.
     :cell-width - The width of each cell to be rendered.
     :cell-height - The height of each cell to be rendered.
@@ -82,18 +82,18 @@
    (render-environment grid default-render-environment-options))
   ([grid options]
    (let [options (merge default-render-environment-options options)
-         {:keys [total-width total-height size-spacing-ratio margin]} options
+         {:keys [width height size-spacing-ratio margin]} options
          columns (grid/column-count grid)
          rows (grid/row-count grid)
-         cell-area-width (- total-width (* 2 margin))
-         cell-area-height (- total-height (* 2 margin))
+         cell-area-width (- width (* 2 margin))
+         cell-area-height (- height (* 2 margin))
          width-per-cell (/ cell-area-width columns)
          height-per-cell (/ cell-area-height rows)
          cell-width (* width-per-cell size-spacing-ratio)
          cell-height (* height-per-cell size-spacing-ratio)]
      {:grid grid
-      :total-width total-width
-      :total-height total-height
+      :width width
+      :height height
       :margin margin
       :cell-width cell-width
       :cell-height cell-height

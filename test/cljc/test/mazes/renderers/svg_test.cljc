@@ -71,110 +71,110 @@
   (testing "without explicit options"
     (let [columns 4
           rows 6
-          {:keys [total-width total-height margin]} default-render-environment-options
+          {:keys [width height margin]} default-render-environment-options
           env (render-environment (grid/create-grid columns rows))]
       (is (not (nil? env)))
       (is (map? env))
-      (is (== total-width
+      (is (== width
               (+ (* (:cell-width env) columns)
                  (* (:cell-h-spacing env) (- columns 1))
                  (* 2 margin)))
-          "Cell widths, separated by h-spacings, must equal total-width minus
+          "Cell widths, separated by h-spacings, must equal width minus
           margin on each side.")
-      (is (== total-height
+      (is (== height
               (+ (* (:cell-height env) rows)
                  (* (:cell-v-spacing env) (- rows 1))
                  (* 2 margin)))
-          "Cell heights, separated by v-spacings, must equal total-width minus
+          "Cell heights, separated by v-spacings, must equal width minus
           margin on each side.")))
   (testing "with explicit options"
     (let [columns 8
           rows 4
-          total-width 800
-          total-height 600
+          width 800
+          height 600
           margin 5
           size-spacing-ratio 0.6
           env (render-environment (grid/create-grid columns rows)
-                                  {:total-width total-width
-                                   :total-height total-height
+                                  {:width width
+                                   :height height
                                    :margin margin
                                    :size-spacing-ratio size-spacing-ratio})]
       (is (not (nil? env)))
       (is (map? env))
-      (is (== total-width
+      (is (== width
               (+ (* (:cell-width env) columns)
                  (* (:cell-h-spacing env) (- columns 1))
                  (* 2 margin)))
-          "Cell widths, separated by h-spacings, must equal total-width minus
+          "Cell widths, separated by h-spacings, must equal width minus
           margin on each side.")
-      (is (== total-height
+      (is (== height
               (+ (* (:cell-height env) rows)
                  (* (:cell-v-spacing env) (- rows 1))
                  (* 2 margin)))
-          "Cell heights, separated by v-spacings, must equal total-width minus
+          "Cell heights, separated by v-spacings, must equal width minus
           margin on each side."))))
 
 (deftest test-room-geometry
   (let [rows 8
         columns 4
         grid (grid/create-grid rows columns)
-        env (render-environment grid)
+        render-env (render-environment grid)
         top-left-cell (grid/find-cell grid 0 0)
-        top-left (room-geometry env top-left-cell)
+        top-left (room-geometry render-env top-left-cell)
         top-right-cell (grid/find-cell grid (- rows 1) 0)
-        top-right (room-geometry env top-right-cell)
+        top-right (room-geometry render-env top-right-cell)
         bottom-left-cell (grid/find-cell grid 0 (- columns 1))
-        bottom-left (room-geometry env bottom-left-cell)
+        bottom-left (room-geometry render-env bottom-left-cell)
         bottom-right-cell (grid/find-cell grid (- rows 1) (- columns 1))
-        bottom-right (room-geometry env bottom-right-cell) ]
+        bottom-right (room-geometry render-env bottom-right-cell) ]
     (testing "return type"
       (is (map? top-left)))
 
 
     (testing "top left"
-      (is (== (:margin env) (:x top-left)))
-      (is (== (:margin env) (:y top-left)))
-      (is (== (:cell-width env) (:width top-left)))
-      (is (== (:cell-height env) (:height top-left))))
+      (is (== (:margin render-env) (:x top-left)))
+      (is (== (:margin render-env) (:y top-left)))
+      (is (== (:cell-width render-env) (:width top-left)))
+      (is (== (:cell-height render-env) (:height top-left))))
 
     (testing "top right"
-      (is (== (+ (:margin env)
-                 (* (::grid/x top-right-cell) (:cell-width env))
-                 (* (::grid/x top-right-cell) (:cell-h-spacing env)))
+      (is (== (+ (:margin render-env)
+                 (* (::grid/x top-right-cell) (:cell-width render-env))
+                 (* (::grid/x top-right-cell) (:cell-h-spacing render-env)))
               (:x top-right)))
-      (is (== (:margin env) (:y top-right)))
-      (is (== (:cell-width env) (:width top-right)))
-      (is (== (:cell-height env) (:height top-right))))
+      (is (== (:margin render-env) (:y top-right)))
+      (is (== (:cell-width render-env) (:width top-right)))
+      (is (== (:cell-height render-env) (:height top-right))))
 
     (testing "bottom left"
-      (is (== (:margin env) (:x bottom-left)))
-      (is (== (+ (:margin env)
-                 (* (::grid/y bottom-left-cell) (:cell-height env))
-                 (* (::grid/y bottom-left-cell) (:cell-v-spacing env)))
+      (is (== (:margin render-env) (:x bottom-left)))
+      (is (== (+ (:margin render-env)
+                 (* (::grid/y bottom-left-cell) (:cell-height render-env))
+                 (* (::grid/y bottom-left-cell) (:cell-v-spacing render-env)))
               (:y bottom-left)))
-      (is (== (:cell-width env) (:width bottom-left)))
-      (is (== (:cell-height env) (:height bottom-left))))
+      (is (== (:cell-width render-env) (:width bottom-left)))
+      (is (== (:cell-height render-env) (:height bottom-left))))
 
     (testing "bottom right"
-      (is (== (+ (:margin env)
-                 (* (::grid/x bottom-right-cell) (:cell-width env))
-                 (* (::grid/x bottom-right-cell) (:cell-h-spacing env)))
+      (is (== (+ (:margin render-env)
+                 (* (::grid/x bottom-right-cell) (:cell-width render-env))
+                 (* (::grid/x bottom-right-cell) (:cell-h-spacing render-env)))
               (:x bottom-right)))
-      (is (== (+ (:margin env)
-                 (* (::grid/y bottom-right-cell) (:cell-height env))
-                 (* (::grid/y bottom-right-cell) (:cell-v-spacing env)))
+      (is (== (+ (:margin render-env)
+                 (* (::grid/y bottom-right-cell) (:cell-height render-env))
+                 (* (::grid/y bottom-right-cell) (:cell-v-spacing render-env)))
               (:y bottom-right)))
-      (is (== (:cell-width env) (:width bottom-right)))
-      (is (== (:cell-height env) (:height bottom-right))))))
+      (is (== (:cell-width render-env) (:width bottom-right)))
+      (is (== (:cell-height render-env) (:height bottom-right))))))
 
 (deftest test-render-rect
   (let [grid (grid/create-grid 1 1)
-        env (render-environment grid)
-        rect (render-rect env (grid/find-cell grid 0 0))]
+        render-env (render-environment grid)
+        rect (render-rect render-env (grid/find-cell grid 0 0))]
     (is (vector? rect))
     (is (= :rect (first rect)))
     (is (map? (last rect)))
-    (is (= (room-geometry env (grid/find-cell grid 0 0)) (last rect)))))
+    (is (= (room-geometry render-env (grid/find-cell grid 0 0)) (last rect)))))
 
 (deftest test-anchor-point
   (let [g {:x 10 :y 20 :width 100 :height 200}]
@@ -191,12 +191,12 @@
   (let [grid (grid/create-grid 2 2)
         grid (grid/link grid (grid/find-cell grid 0 0) ::grid/e)
         grid (grid/link grid (grid/find-cell grid 0 0) ::grid/s)
-        env (render-environment grid)
+        render-env (render-environment grid)
         start-cell (grid/find-cell grid 0 0)
-        start-room (room-geometry env start-cell)
+        start-room (room-geometry render-env start-cell)
         end-cell (grid/move grid start-cell ::grid/e)
-        end-room (room-geometry env end-cell)
-        line (render-line env start-cell ::grid/e)]
+        end-room (room-geometry render-env end-cell)
+        line (render-line render-env start-cell ::grid/e)]
     (is (vector? line))
     (is (= :line (first line)))
     (is (map? (last line)))
@@ -208,11 +208,11 @@
   (let [grid (grid/create-grid 2 2)
         grid (grid/link grid (grid/find-cell grid 0 0) ::grid/e)
         grid (grid/link grid (grid/find-cell grid 0 0) ::grid/s)
-        env (render-environment grid)
+        render-env (render-environment grid)
         start-cell (grid/find-cell grid 0 0)
-        start-room (room-geometry env start-cell)
+        start-room (room-geometry render-env start-cell)
         end-cell (grid/move grid start-cell ::grid/e)
-        end-room (room-geometry env end-cell)
+        end-room (room-geometry render-env end-cell)
         ; Specter selector: [s/ALL (is-svg-tag? :rect)]
         is-svg-tag? (fn [tag]
                       (fn [coll]
@@ -220,17 +220,17 @@
         find-rect (fn [g] (sm/select-any [s/ALL (is-svg-tag? :rect)] g))
         find-lines (fn [g] (sm/select [s/ALL (is-svg-tag? :line)] g))]
     (testing "without existing lines"
-      (let [g (render-cell env start-cell)]
+      (let [g (render-cell render-env start-cell)]
         (is (vector? g))
         (is (> (count g) 0))
         (is (= :g (first g)))
         (let [rect (find-rect g)
               lines (find-lines g)]
-          (is (= (room-geometry env start-cell) (last rect)))
+          (is (= (room-geometry render-env start-cell) (last rect)))
           ; the two grid-links above should give this room two connections
           (is (= 2 (count lines))))))
     (testing "with one existing line"
       ; render as above, yielding 2 lines, but keep only 1
-      (let [lines (pop (find-lines (render-cell env start-cell)))
-            g (render-cell env start-cell (set lines))]
+      (let [lines (pop (find-lines (render-cell render-env start-cell)))
+            g (render-cell render-env start-cell (set lines))]
         (is (= 1 (count (find-lines g))))))))
