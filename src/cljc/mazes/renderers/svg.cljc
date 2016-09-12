@@ -98,11 +98,11 @@
       :cell-width cell-width
       :cell-height cell-height
       ; spacing exists between cells, but not on the far side of the last
-      ; column/row; so divide the non-cell space by n - 1, not n.
+      ; column/row; so divide the non-cell space by n - 1 (minimum of 1), not n.
       :cell-h-spacing (/ (- cell-area-width (* cell-width columns))
-                         (- columns 1))
+                         (max (- columns 1) 1))
       :cell-v-spacing (/ (- cell-area-height (* cell-height rows))
-                         (- rows 1))})))
+                         (max (- rows 1) 1))})))
 
 (defn room-geometry
   "Given a render-environment map and a ::grid/cell, returns a map with keys :x,
