@@ -68,6 +68,9 @@
       A higher margin will leave less space for cells.
 
   Values returned:
+    :grid - The grid which is being rendered; rendering functions may use this
+      for additional information. For instance, drawing connections between
+      rooms is simplified when grid/find-cell is available.
     :total-width - Passed through from input options.
     :total-height - Passed through from input options.
     :margin - Passed through from input options.
@@ -88,7 +91,8 @@
          height-per-cell (/ cell-area-height rows)
          cell-width (* width-per-cell size-spacing-ratio)
          cell-height (* height-per-cell size-spacing-ratio)]
-     {:total-width total-width
+     {:grid grid
+      :total-width total-width
       :total-height total-height
       :margin margin
       :cell-width cell-width
