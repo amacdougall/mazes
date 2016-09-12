@@ -37,8 +37,10 @@
 (defn svg
   ([]
    (svg default-svg-attributes))
-  ([{:keys [:width :height :viewbox] :as options}]
-   (let [viewbox (or viewbox
+  ([options]
+   (let [options (merge default-svg-attributes options)
+         {:keys [width height viewbox]} options
+         viewbox (or viewbox
                      (merge (:viewbox default-svg-attributes)
                             {:width width :height height}))
          viewbox-values (map viewbox [:x :y :width :height])
