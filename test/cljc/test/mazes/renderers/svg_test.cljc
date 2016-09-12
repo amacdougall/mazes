@@ -18,8 +18,10 @@
   (every? #(apply == %) (partition 2 (interleave c1 c2))))
 
 (deftest test-root
-  (testing "without options hash"
-    (let [output (svg)]
+  (testing "without render-environment options"
+    (let [grid (grid/create-grid 2 2)
+          render-env (render-environment grid)
+          output (svg render-env)]
       (is (vector? output))
       (is (not (empty? output)))
       ; this simple Specter select could just be (first (filter map? output)), but
@@ -32,11 +34,13 @@
         (is (equal-numbers?
               [0 0 (:width default-svg-attributes) (:height default-svg-attributes)]
               (map read-string (clojure.string/split (:viewbox attributes) #" ")))))))
-  (testing "with options hash"
-    (let [output (render (grid/create-grid 2 2)
-                         {:width 1500
-                          :height 1000
-                          :viewbox {:x 20 :y 10 :width 500 :height 400}})]
+  (testing "with render-environment options"
+    (let [render-env (render-environment
+                       (grid/create-grid 2 2)
+                       {:width 1500
+                        :height 1000
+                        :viewbox {:x 20 :y 10 :width 500 :height 400}})
+          output (svg render-env)]
       (let [attributes (sm/select-any [s/ALL map?] output)]
         (is (== 1500 (:width attributes)))
         (is (== 1000 (:height attributes)))
@@ -101,6 +105,8 @@
                                    :size-spacing-ratio size-spacing-ratio})]
       (is (not (nil? env)))
       (is (map? env))
+      (is (== width (:width (:viewbox env))))
+      (is (== height (:height (:viewbox env))))
       (is (== width
               (+ (* (:cell-width env) columns)
                  (* (:cell-h-spacing env) (- columns 1))
