@@ -114,61 +114,67 @@
           "Cell heights, separated by v-spacings, must equal total-width minus
           margin on each side."))))
 
-(deftest test-render-cell
+(deftest test-room-geometry
   (let [rows 8
         columns 4
         grid (grid/create-grid rows columns)
         env (render-environment grid)
         top-left-cell (grid/find-cell grid 0 0)
-        top-left (render-cell env top-left-cell)
+        top-left (room-geometry env top-left-cell)
         top-right-cell (grid/find-cell grid (- rows 1) 0)
-        top-right (render-cell env top-right-cell)
+        top-right (room-geometry env top-right-cell)
         bottom-left-cell (grid/find-cell grid 0 (- columns 1))
-        bottom-left (render-cell env bottom-left-cell)
+        bottom-left (room-geometry env bottom-left-cell)
         bottom-right-cell (grid/find-cell grid (- rows 1) (- columns 1))
-        bottom-right (render-cell env bottom-right-cell)
-        ; given a tag name symbol, such as :rect, return a Specter path to find
-        ; it in a render-cell result
-        tag-path (fn [tag] [s/ALL vector? #(= tag (first %)) s/LAST])
-        ; rect-attrs and line-attrs take a render-cell result: a <g> tag
-        rect-attrs (fn [g] (sm/select-any (tag-path :rect) g))
-        line-attrs (fn [g] (sm/select-any (tag-path :line) g))]
-    (is (vector? top-left))
-    (is (= :g (first top-left)))
-    (is (some (partial = :rect)
-              (sm/select [s/ALL vector? s/FIRST] top-left)))
-    (let [attrs (rect-attrs top-left)]
-      (is (== (:margin env) (:x attrs)))
-      (is (== (:margin env) (:y attrs)))
-      (is (== (:cell-width env) (:width attrs)))
-      (is (== (:cell-height env) (:height attrs))))
-    (let [attrs (rect-attrs top-right)]
+        bottom-right (room-geometry env bottom-right-cell) ]
+    (testing "return type"
+      (is (map? top-left)))
+
+
+    (testing "top left"
+      (is (== (:margin env) (:x top-left)))
+      (is (== (:margin env) (:y top-left)))
+      (is (== (:cell-width env) (:width top-left)))
+      (is (== (:cell-height env) (:height top-left))))
+
+    (testing "top right"
       (is (== (+ (:margin env)
                  (* (::grid/x top-right-cell) (:cell-width env))
                  (* (::grid/x top-right-cell) (:cell-h-spacing env)))
-              (:x attrs)))
-      (is (== (:margin env) (:y attrs)))
-      (is (== (:cell-width env) (:width attrs)))
-      (is (== (:cell-height env) (:height attrs))))
-    (let [attrs (rect-attrs bottom-left)]
-      (is (== (:margin env) (:x attrs)))
+              (:x top-right)))
+      (is (== (:margin env) (:y top-right)))
+      (is (== (:cell-width env) (:width top-right)))
+      (is (== (:cell-height env) (:height top-right))))
+
+    (testing "bottom left"
+      (is (== (:margin env) (:x bottom-left)))
       (is (== (+ (:margin env)
                  (* (::grid/y bottom-left-cell) (:cell-height env))
                  (* (::grid/y bottom-left-cell) (:cell-v-spacing env)))
-              (:y attrs)))
-      (is (== (:cell-width env) (:width attrs)))
-      (is (== (:cell-height env) (:height attrs))))
-    (let [attrs (rect-attrs bottom-right)]
+              (:y bottom-left)))
+      (is (== (:cell-width env) (:width bottom-left)))
+      (is (== (:cell-height env) (:height bottom-left))))
+
+    (testing "bottom right"
       (is (== (+ (:margin env)
                  (* (::grid/x bottom-right-cell) (:cell-width env))
                  (* (::grid/x bottom-right-cell) (:cell-h-spacing env)))
-              (:x attrs)))
+              (:x bottom-right)))
       (is (== (+ (:margin env)
                  (* (::grid/y bottom-right-cell) (:cell-height env))
                  (* (::grid/y bottom-right-cell) (:cell-v-spacing env)))
-              (:y attrs)))
-      (is (== (:cell-width env) (:width attrs)))
-      (is (== (:cell-height env) (:height attrs))))))
+              (:y bottom-right)))
+      (is (== (:cell-width env) (:width bottom-right)))
+      (is (== (:cell-height env) (:height bottom-right))))))
+
+(deftest test-render-rect
+  (let [grid (grid/create-grid 1 1)
+        env (render-environment grid)
+        rect (render-rect env (grid/find-cell grid 0 0))]
+    (is (vector? rect))
+    (is (= :rect (first rect)))
+    (is (map? (last rect)))
+    (is (= (room-geometry env (grid/find-cell grid 0 0)) (last rect)))))
 
 (deftest test-anchor-point
   (let [g {:x 10 :y 20 :width 100 :height 200}]
@@ -180,3 +186,51 @@
     (is (equal-numbers? [10 220] (anchor-point g ::grid/sw)))
     (is (equal-numbers? [10 120] (anchor-point g ::grid/w)))
     (is (equal-numbers? [10 20] (anchor-point g ::grid/nw)))))
+
+(deftest test-render-line
+  (let [grid (grid/create-grid 2 2)
+        grid (grid/link grid (grid/find-cell grid 0 0) ::grid/e)
+        grid (grid/link grid (grid/find-cell grid 0 0) ::grid/s)
+        env (render-environment grid)
+        start-cell (grid/find-cell grid 0 0)
+        start-room (room-geometry env start-cell)
+        end-cell (grid/move grid start-cell ::grid/e)
+        end-room (room-geometry env end-cell)
+        line (render-line env start-cell ::grid/e)]
+    (is (vector? line))
+    (is (= :line (first line)))
+    (is (map? (last line)))
+    (let [{:keys [x1 y1 x2 y2]} (last line)]
+      (is (= (anchor-point start-room ::grid/e) [x1 y1]))
+      (is (= (anchor-point end-room ::grid/w) [x2 y2])))))
+
+(deftest test-render-cell
+  (let [grid (grid/create-grid 2 2)
+        grid (grid/link grid (grid/find-cell grid 0 0) ::grid/e)
+        grid (grid/link grid (grid/find-cell grid 0 0) ::grid/s)
+        env (render-environment grid)
+        start-cell (grid/find-cell grid 0 0)
+        start-room (room-geometry env start-cell)
+        end-cell (grid/move grid start-cell ::grid/e)
+        end-room (room-geometry env end-cell)
+        ; Specter selector: [s/ALL (is-svg-tag? :rect)]
+        is-svg-tag? (fn [tag]
+                      (fn [coll]
+                        (and (vector? coll) (= tag (first coll)))))
+        find-rect (fn [g] (sm/select-any [s/ALL (is-svg-tag? :rect)] g))
+        find-lines (fn [g] (sm/select [s/ALL (is-svg-tag? :line)] g))]
+    (testing "without existing lines"
+      (let [g (render-cell env start-cell)]
+        (is (vector? g))
+        (is (> (count g) 0))
+        (is (= :g (first g)))
+        (let [rect (find-rect g)
+              lines (find-lines g)]
+          (is (= (room-geometry env start-cell) (last rect)))
+          ; the two grid-links above should give this room two connections
+          (is (= 2 (count lines))))))
+    (testing "with one existing line"
+      ; render as above, yielding 2 lines, but keep only 1
+      (let [lines (pop (find-lines (render-cell env start-cell)))
+            g (render-cell env start-cell (set lines))]
+        (is (= 1 (count (find-lines g))))))))

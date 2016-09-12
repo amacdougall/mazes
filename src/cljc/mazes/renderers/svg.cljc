@@ -113,13 +113,6 @@
    :width cell-width
    :height cell-height})
 
-(defn render-cell
-  "Given a render-environment map and a ::grid/cell, returns an SVG group
-  which displays the cell."
-  [render-env cell]
-  [:g
-   [:rect (room-geometry render-env cell)]])
-
 (defn anchor-point
   "Given a room-geometry result and the ::grid/direction keyword for one of its
   corners, returns an [x y] coordinate pair vector for that point on the
@@ -145,6 +138,34 @@
   :args (spec/cat :geometry map? :grid ::grid/direction)
   :ret (spec/coll-of number? :min-count 2 :max-count 2))
 
+(defn render-rect [render-env cell]
+  [:rect (room-geometry render-env cell)])
+
+(defn render-line [render-env cell direction]
+  (let [start-room (room-geometry render-env cell)
+        end-cell (grid/move (:grid render-env) cell direction)
+        end-room (room-geometry render-env end-cell)
+        [x1 y1] (anchor-point start-room direction)
+        [x2 y2] (anchor-point end-room (direction grid/converse-directions))]
+    [:line {:x1 x1, :y1 y1, :x2 x2, :y2 y2}]))
+(spec/fdef render-line
+  :args (spec/cat :render-env map? :cell ::grid/cell :direction ::grid/direction)
+  :ret vector?)
+
+(defn render-cell
+  "Given a render-environment map and a ::grid/cell, returns an SVG group
+  containing a room rect, and lines connecting it to its neighbors in each exit
+  direction. If also given a set of lines which have already been drawn, omits
+  redundant lines."
+  ([render-env cell]
+   (render-cell render-env cell #{}))
+  ([render-env cell existing-lines]
+   (into [:g
+          (render-rect render-env cell)]
+         (->> (::grid/exits cell)
+           (map (partial render-line render-env cell))
+           (remove existing-lines)))))
+
 (defn render
   "Given a grid, returns an SVG rendering as Hiccup data structures. Accepts an
   options map with the following keys. All numeric values are in user units.
@@ -155,6 +176,8 @@
                height of the SVG."
   ; TODO: fully implement these functions; right now they just output the SVG base tag.
   ([grid]
-   (svg))
+   (render grid default-svg-attributes))
   ([grid options]
-   (svg options)))
+   (let [options (merge default-svg-attributes options)]
+     (into (svg options) [1 2 3] ; TODO: cells
+           ))))
