@@ -1,21 +1,17 @@
 (ns test.mazes.renderers.svg-test
   (:require [clojure.test :refer :all]
             [clojure.spec.test :as stest]
+            [hiccup.core :as hiccup]
             [mazes.grid :as grid]
             [mazes.renderers.svg :refer :all :as svg]
+            [test.mazes.helpers :refer [has-values? equal-numbers?]]
             [com.rpl.specter :as s]
-            [com.rpl.specter.macros :as sm]
-            ))
+            [com.rpl.specter.macros :as sm]))
 
 ;; NOTE: We're using a lot of == in these tests, because we never know when
 ;; something is going to return a double instead of an int.
 
 (stest/instrument)
-
-;; Helper: true if the two collections contain the same numbers in the same
-;; order, regardless of the types of the collections or numbers. Uses ==.
-(defn equal-numbers? [c1 c2]
-  (every? #(apply == %) (partition 2 (interleave c1 c2))))
 
 (deftest test-root
   (testing "without render-environment options"
@@ -182,7 +178,7 @@
     (is (vector? rect))
     (is (= :rect (first rect)))
     (is (map? (last rect)))
-    (is (= (room-geometry render-env (grid/find-cell grid 0 0)) (last rect)))))
+    (is (has-values? (room-geometry render-env (grid/find-cell grid 0 0)) (last rect)))))
 
 (deftest test-anchor-point
   (let [g {:x 10 :y 20 :width 100 :height 200}]
@@ -208,6 +204,7 @@
     (is (vector? line))
     (is (= :line (first line)))
     (is (map? (last line)))
+    (is (has-values? default-stroke-attributes (last line)))
     (let [{:keys [x1 y1 x2 y2]} (last line)]
       (is (= (anchor-point start-room ::grid/e) [x1 y1]))
       (is (= (anchor-point end-room ::grid/w) [x2 y2])))))
@@ -228,13 +225,13 @@
       (is (= :g (first g)))
       (let [rect (find-rect g)
             lines (find-lines g)]
-        (is (= (room-geometry render-env start-cell) (last rect)))
+        (is (has-values? (room-geometry render-env start-cell) (last rect)))
         ; the two grid-links above should give this room two connections
         (is (= 2 (count lines)))))
     (let [g (render-cell render-env end-cell)]
       (let [rect (find-rect g)
             lines (find-lines g)]
-        (is (= (room-geometry render-env end-cell) (last rect)))
+        (is (has-values? (room-geometry render-env end-cell) (last rect)))
         ; this room should have a line only going south; previous room will have
         ; accounted for the east-west line
         (is (= 1 (count lines)))))))
