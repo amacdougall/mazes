@@ -79,6 +79,7 @@
           env (render-environment (grid/create-grid columns rows))]
       (is (not (nil? env)))
       (is (map? env))
+      (is (== margin (:margin env)))
       (is (== width
               (+ (* (:cell-width env) columns)
                  (* (:cell-h-spacing env) (- columns 1))
@@ -107,6 +108,7 @@
       (is (map? env))
       (is (== width (:width (:viewbox env))))
       (is (== height (:height (:viewbox env))))
+      (is (== margin (:margin env)))
       (is (== width
               (+ (* (:cell-width env) columns)
                  (* (:cell-h-spacing env) (- columns 1))
@@ -214,29 +216,40 @@
   (let [grid (grid/create-grid 2 2)
         grid (grid/link grid (grid/find-cell grid 0 0) ::grid/e)
         grid (grid/link grid (grid/find-cell grid 0 0) ::grid/s)
+        grid (grid/link grid (grid/find-cell grid 1 0) ::grid/s)
         render-env (render-environment grid)
         start-cell (grid/find-cell grid 0 0)
         start-room (room-geometry render-env start-cell)
         end-cell (grid/move grid start-cell ::grid/e)
-        end-room (room-geometry render-env end-cell)
-        ; Specter selector: [s/ALL (is-svg-tag? :rect)]
-        is-svg-tag? (fn [tag]
-                      (fn [coll]
-                        (and (vector? coll) (= tag (first coll)))))
-        find-rect (fn [g] (sm/select-any [s/ALL (is-svg-tag? :rect)] g))
-        find-lines (fn [g] (sm/select [s/ALL (is-svg-tag? :line)] g))]
-    (testing "without existing lines"
-      (let [g (render-cell render-env start-cell)]
-        (is (vector? g))
-        (is (> (count g) 0))
-        (is (= :g (first g)))
-        (let [rect (find-rect g)
-              lines (find-lines g)]
-          (is (= (room-geometry render-env start-cell) (last rect)))
-          ; the two grid-links above should give this room two connections
-          (is (= 2 (count lines))))))
-    (testing "with one existing line"
-      ; render as above, yielding 2 lines, but keep only 1
-      (let [lines (pop (find-lines (render-cell render-env start-cell)))
-            g (render-cell render-env start-cell (set lines))]
-        (is (= 1 (count (find-lines g))))))))
+        end-room (room-geometry render-env end-cell)]
+    (let [g (render-cell render-env start-cell)]
+      (is (vector? g))
+      (is (> (count g) 0))
+      (is (= :g (first g)))
+      (let [rect (find-rect g)
+            lines (find-lines g)]
+        (is (= (room-geometry render-env start-cell) (last rect)))
+        ; the two grid-links above should give this room two connections
+        (is (= 2 (count lines)))))
+    (let [g (render-cell render-env end-cell)]
+      (let [rect (find-rect g)
+            lines (find-lines g)]
+        (is (= (room-geometry render-env end-cell) (last rect)))
+        ; this room should have a line only going south; previous room will have
+        ; accounted for the east-west line
+        (is (= 1 (count lines)))))))
+
+(deftest test-render
+  (let [grid (grid/create-grid 2 2)
+        grid (grid/link grid (grid/find-cell grid 0 0) ::grid/e)
+        grid (grid/link grid (grid/find-cell grid 0 0) ::grid/s)
+        render-env (render-environment grid)
+        output (render grid render-env)]
+    (is (vector? output))
+    (is (= :svg (first output)))
+    (is (= 4 (count (sm/select [s/ALL vector?] output)))
+        "Four cell groups should be rendered.")
+    (is (= 2 (count (sm/select
+                      [s/ALL (is-svg-tag? :g) s/ALL (is-svg-tag? :line)]
+                      output)))
+        "Two connecting lines should be rendered.")))

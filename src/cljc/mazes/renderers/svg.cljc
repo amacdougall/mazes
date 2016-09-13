@@ -155,21 +155,28 @@
 
 (defn render-cell
   "Given a render-environment map and a ::grid/cell, returns an SVG group
-  containing a room rect, and lines connecting it to its neighbors in each exit
-  direction. If also given a set of lines which have already been drawn, omits
-  redundant lines."
-  ([render-env cell]
-   (render-cell render-env cell #{}))
-  ([render-env cell existing-lines]
-   (into [:g
-          (render-rect render-env cell)]
-         (->> (::grid/exits cell)
-           (map (partial render-line render-env cell))
-           (remove existing-lines)))))
+  containing a room rect, and lines connecting it to its neighbors in the
+  northest, east, southeast, and south directions. Assuming at least a 2x2 grid,
+  this will be sufficient to render all connections among cells."
+  [render-env cell]
+  (into [:g (render-rect render-env cell)]
+        (map (partial render-line render-env cell)
+             (filter #{::grid/ne ::grid/e ::grid/se ::grid/s} (::grid/exits cell)))))
+(spec/fdef render-cell
+  :args (spec/cat :render-env map? :cell ::grid/cell :existing-lines (spec/? set?)))
+
+; Specter helper functions for reading render-cell results
+(defn is-svg-tag? [tag]
+  (fn [coll]
+    (and (vector? coll) (= tag (first coll)))))
+
+(defn find-rect [g] (sm/select-any [s/ALL (is-svg-tag? :rect)] g))
+(defn find-lines [g] (sm/select [s/ALL (is-svg-tag? :line)] g))
 
 (defn render
   "Given a grid and a render environment, returns an SVG rendering as Hiccup
   data structures. All numeric values are in user units."
-  ([grid render-env]
-   (svg render-env)
-   ))
+  [grid render-env]
+  (into (svg render-env)
+        (map (partial render-cell render-env)
+             (grid/all-cells grid))))
