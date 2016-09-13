@@ -24,12 +24,17 @@
    :size-spacing-ratio 0.75})
 
 (def default-stroke-attributes
-  {:stroke-width 2
+  {:stroke "black"
+   :stroke-width 20
    :stroke-linejoin "miter"
    :stroke-linecap "square"})
 
+(def default-rect-attributes
+  (merge default-stroke-attributes
+         {:fill-opacity 0}))
+
 (defn rect [attributes]
-  [:rect (merge attributes default-stroke-attributes)])
+  [:rect (merge attributes default-rect-attributes)])
 
 (defn line [attributes]
   [:line (merge attributes default-stroke-attributes)])
@@ -140,7 +145,7 @@
   :ret (spec/coll-of number? :min-count 2 :max-count 2))
 
 (defn render-rect [render-env cell]
-  [:rect (room-geometry render-env cell)])
+  (rect (room-geometry render-env cell)))
 
 (defn render-line [render-env cell direction]
   (let [start-room (room-geometry render-env cell)
@@ -148,7 +153,7 @@
         end-room (room-geometry render-env end-cell)
         [x1 y1] (anchor-point start-room direction)
         [x2 y2] (anchor-point end-room (direction grid/converse-directions))]
-    [:line {:x1 x1, :y1 y1, :x2 x2, :y2 y2}]))
+    (line {:x1 x1, :y1 y1, :x2 x2, :y2 y2})))
 (spec/fdef render-line
   :args (spec/cat :render-env map? :cell ::grid/cell :direction ::grid/direction)
   :ret vector?)
