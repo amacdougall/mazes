@@ -9,7 +9,8 @@
   :source-paths ["src/clj", "src/cljc"]
   :profiles
   {:dev
-   {:dependencies [[org.clojure/test.check "0.9.0"]]
+   {:dependencies [[org.clojure/test.check "0.9.0"]
+                   [org.clojure/algo.generic "0.1.2"]]
     :source-paths ["test/clj", "test/cljc"]
     :plugins [[com.jakemccrary/lein-test-refresh "0.10.0"]]
     :test-refresh {:notify-command ["lein-test-refresh-notify"]

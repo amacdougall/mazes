@@ -95,12 +95,13 @@
   ([grid]
    (render-environment grid default-render-environment-options))
   ([grid options]
-   (let [options (merge
-                   default-render-environment-options
-                   options
-                   ; if width and height but no viewbox, create default viewbox
-                   (when (and (:width options) (:height options) (nil? (:viewbox options)))
-                     {:viewbox (assoc (select-keys options #{:width :height}) :x 0 :y 0)}))
+   ; use default-render-environment-options as base; add user options; add default viewbox
+   (let [options (merge default-render-environment-options options) 
+         options (merge options
+                        (when (and (:width options)
+                                   (:height options)
+                                   (nil? (:viewbox options)))
+                          {:viewbox (assoc (select-keys options #{:width :height}) :x 0 :y 0)}))
          {:keys [width height size-spacing-ratio margin viewbox]} options
          columns (grid/column-count grid)
          rows (grid/row-count grid)

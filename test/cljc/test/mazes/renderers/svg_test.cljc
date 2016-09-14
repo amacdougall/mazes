@@ -1,5 +1,6 @@
 (ns test.mazes.renderers.svg-test
-  (:require [clojure.test :refer :all]
+  (:require [clojure.algo.generic.math-functions :refer [approx=]]
+            [clojure.test :refer :all]
             [clojure.spec.test :as stest]
             [hiccup.core :as hiccup]
             [mazes.grid :as grid]
@@ -8,8 +9,12 @@
             [com.rpl.specter :as s]
             [com.rpl.specter.macros :as sm]))
 
-;; NOTE: We're using a lot of == in these tests, because we never know when
-;; something is going to return a double instead of an int.
+;; NOTE: We're using a lot of this custom approximate-equality in these tests,
+;; because we never know when something is going to return a double instead of
+;; an int, and when division is involved, we find that this kind of check fails:
+;; (== 2.0 1.9999999999999999999999) ...in defiance of our intent.
+(defn- ≈ [a b]
+  (clojure.algo.generic.math-functions/approx= a b 1e-2))
 
 (stest/instrument)
 
@@ -24,8 +29,8 @@
       ; selections will become more complex as the renderer SVG grows, so let's
       ; just use it consistently from the start.
       (let [attributes (sm/select-any [s/ALL map?] output)]
-        (is (== (:width default-svg-attributes) (:width attributes)))
-        (is (== (:height default-svg-attributes) (:height attributes)))
+        (is (≈ (:width default-svg-attributes) (:width attributes)))
+        (is (≈ (:height default-svg-attributes) (:height attributes)))
         (is (string? (:viewbox attributes)))
         (is (equal-numbers?
               [0 0 (:width default-svg-attributes) (:height default-svg-attributes)]
@@ -38,8 +43,8 @@
                         :viewbox {:x 20 :y 10 :width 500 :height 400}})
           output (svg render-env)]
       (let [attributes (sm/select-any [s/ALL map?] output)]
-        (is (== 1500 (:width attributes)))
-        (is (== 1000 (:height attributes)))
+        (is (≈ 1500 (:width attributes)))
+        (is (≈ 1000 (:height attributes)))
         (is (string? (:viewbox attributes)))
         (is (equal-numbers?
               [20 10 500 400]
@@ -50,10 +55,10 @@
     (is (vector? output))
     (is (not (empty? output)))
     (let [attributes (sm/select-any [s/ALL map?] output)]
-      (is (== 1 (:x attributes)))
-      (is (== 2 (:y attributes)))
-      (is (== 100 (:width attributes)))
-      (is (== 200 (:height attributes)))
+      (is (≈ 1 (:x attributes)))
+      (is (≈ 2 (:y attributes)))
+      (is (≈ 100 (:width attributes)))
+      (is (≈ 200 (:height attributes)))
       (is (= default-stroke-attributes (select-keys attributes (keys default-stroke-attributes)))))))
 
 (deftest test-line
@@ -61,10 +66,10 @@
     (is (vector? output))
     (is (not (empty? output)))
     (let [attributes (sm/select-any [s/ALL map?] output)]
-      (is (== 10 (:x1 attributes)))
-      (is (== 20 (:y1 attributes)))
-      (is (== 100 (:x2 attributes)))
-      (is (== 200 (:y2 attributes)))
+      (is (≈ 10 (:x1 attributes)))
+      (is (≈ 20 (:y1 attributes)))
+      (is (≈ 100 (:x2 attributes)))
+      (is (≈ 200 (:y2 attributes)))
       (is (= default-stroke-attributes (select-keys attributes (keys default-stroke-attributes)))))))
 
 (deftest test-render-environment
@@ -75,17 +80,17 @@
           env (render-environment (grid/create-grid columns rows))]
       (is (not (nil? env)))
       (is (map? env))
-      (is (== margin (:margin env)))
-      (is (== width
-              (+ (* (:cell-width env) columns)
-                 (* (:cell-h-spacing env) (- columns 1))
-                 (* 2 margin)))
+      (is (≈ margin (:margin env)))
+      (is (≈ width
+             (+ (* (:cell-width env) columns)
+                (* (:cell-h-spacing env) (- columns 1))
+                (* 2 margin)))
           "Cell widths, separated by h-spacings, must equal width minus
           margin on each side.")
-      (is (== height
-              (+ (* (:cell-height env) rows)
-                 (* (:cell-v-spacing env) (- rows 1))
-                 (* 2 margin)))
+      (is (≈ height
+             (+ (* (:cell-height env) rows)
+                (* (:cell-v-spacing env) (- rows 1))
+                (* 2 margin)))
           "Cell heights, separated by v-spacings, must equal width minus
           margin on each side.")))
   (testing "with explicit options"
@@ -95,28 +100,41 @@
           height 600
           margin 5
           size-spacing-ratio 0.6
-          env (render-environment (grid/create-grid columns rows)
-                                  {:width width
-                                   :height height
-                                   :margin margin
-                                   :size-spacing-ratio size-spacing-ratio})]
+          env (render-environment
+                (grid/create-grid columns rows)
+                {:width width
+                 :height height
+                 :margin margin
+                 :size-spacing-ratio size-spacing-ratio
+                 :rect-attributes {:stroke-width 10 :stroke "green" :fill "yellow"}
+                 :line-attributes {:stroke-width 30 :stroke "blue"}})]
       (is (not (nil? env)))
       (is (map? env))
-      (is (== width (:width (:viewbox env))))
-      (is (== height (:height (:viewbox env))))
-      (is (== margin (:margin env)))
-      (is (== width
-              (+ (* (:cell-width env) columns)
-                 (* (:cell-h-spacing env) (- columns 1))
-                 (* 2 margin)))
+      (is (≈ width (:width (:viewbox env))))
+      (is (≈ height (:height (:viewbox env))))
+      (is (≈ margin (:margin env)))
+      (is (≈ width
+             (+ (* (:cell-width env) columns)
+                (* (:cell-h-spacing env) (- columns 1))
+                (* 2 margin)))
           "Cell widths, separated by h-spacings, must equal width minus
           margin on each side.")
-      (is (== height
-              (+ (* (:cell-height env) rows)
-                 (* (:cell-v-spacing env) (- rows 1))
-                 (* 2 margin)))
+      (is (≈ height
+             (+ (* (:cell-height env) rows)
+                (* (:cell-v-spacing env) (- rows 1))
+                (* 2 margin)))
           "Cell heights, separated by v-spacings, must equal width minus
-          margin on each side."))))
+          margin on each side.")))
+  (testing "with incomplete explicit options"
+    (let [env (render-environment
+                (grid/create-grid 2 2)
+                {:rect-attributes {:stroke-width 10 :stroke "green" :fill "yellow"}
+                 :line-attributes {:stroke-width 30 :stroke "blue"}})]
+      (is (not (nil? env)))
+      (is (map? env))
+      (is (map? (:viewbox env)))
+      (is (≈ (:width default-render-environment-options) (:width (:viewbox env))))
+      (is (≈ (:height default-render-environment-options) (:height (:viewbox env)))))))
 
 (deftest test-room-geometry
   (let [rows 8
@@ -136,40 +154,40 @@
 
 
     (testing "top left"
-      (is (== (:margin render-env) (:x top-left)))
-      (is (== (:margin render-env) (:y top-left)))
-      (is (== (:cell-width render-env) (:width top-left)))
-      (is (== (:cell-height render-env) (:height top-left))))
+      (is (≈ (:margin render-env) (:x top-left)))
+      (is (≈ (:margin render-env) (:y top-left)))
+      (is (≈ (:cell-width render-env) (:width top-left)))
+      (is (≈ (:cell-height render-env) (:height top-left))))
 
     (testing "top right"
-      (is (== (+ (:margin render-env)
+      (is (≈ (+ (:margin render-env)
                  (* (::grid/x top-right-cell) (:cell-width render-env))
                  (* (::grid/x top-right-cell) (:cell-h-spacing render-env)))
               (:x top-right)))
-      (is (== (:margin render-env) (:y top-right)))
-      (is (== (:cell-width render-env) (:width top-right)))
-      (is (== (:cell-height render-env) (:height top-right))))
+      (is (≈ (:margin render-env) (:y top-right)))
+      (is (≈ (:cell-width render-env) (:width top-right)))
+      (is (≈ (:cell-height render-env) (:height top-right))))
 
     (testing "bottom left"
-      (is (== (:margin render-env) (:x bottom-left)))
-      (is (== (+ (:margin render-env)
+      (is (≈ (:margin render-env) (:x bottom-left)))
+      (is (≈ (+ (:margin render-env)
                  (* (::grid/y bottom-left-cell) (:cell-height render-env))
                  (* (::grid/y bottom-left-cell) (:cell-v-spacing render-env)))
               (:y bottom-left)))
-      (is (== (:cell-width render-env) (:width bottom-left)))
-      (is (== (:cell-height render-env) (:height bottom-left))))
+      (is (≈ (:cell-width render-env) (:width bottom-left)))
+      (is (≈ (:cell-height render-env) (:height bottom-left))))
 
     (testing "bottom right"
-      (is (== (+ (:margin render-env)
+      (is (≈ (+ (:margin render-env)
                  (* (::grid/x bottom-right-cell) (:cell-width render-env))
                  (* (::grid/x bottom-right-cell) (:cell-h-spacing render-env)))
               (:x bottom-right)))
-      (is (== (+ (:margin render-env)
+      (is (≈ (+ (:margin render-env)
                  (* (::grid/y bottom-right-cell) (:cell-height render-env))
                  (* (::grid/y bottom-right-cell) (:cell-v-spacing render-env)))
               (:y bottom-right)))
-      (is (== (:cell-width render-env) (:width bottom-right)))
-      (is (== (:cell-height render-env) (:height bottom-right))))))
+      (is (≈ (:cell-width render-env) (:width bottom-right)))
+      (is (≈ (:cell-height render-env) (:height bottom-right))))))
 
 (deftest test-render-rect
   (let [grid (grid/create-grid 1 1)
@@ -239,14 +257,30 @@
 (deftest test-render
   (let [grid (grid/create-grid 2 2)
         grid (grid/link grid (grid/find-cell grid 0 0) ::grid/e)
-        grid (grid/link grid (grid/find-cell grid 0 0) ::grid/s)
-        render-env (render-environment grid)
-        output (render grid render-env)]
-    (is (vector? output))
-    (is (= :svg (first output)))
-    (is (= 4 (count (sm/select [s/ALL vector?] output)))
-        "Four cell groups should be rendered.")
-    (is (= 2 (count (sm/select
+        grid (grid/link grid (grid/find-cell grid 0 0) ::grid/s)]
+    (testing "with default render environment"
+      (let [render-env (render-environment grid)
+            output (render grid render-env)]
+        (is (vector? output))
+        (is (= :svg (first output)))
+        (is (= 4 (count (sm/select [s/ALL vector?] output)))
+            "Four cell groups should be rendered.")
+        (is (= 2 (count (sm/select
+                          [s/ALL (is-svg-tag? :g) s/ALL (is-svg-tag? :line)]
+                          output)))
+            "Two connecting lines should be rendered.")
+        (is (string? (hiccup/html output)) "Hiccup string output should succeed.")))
+    (testing "with custom render environment"
+      (let [render-env (render-environment grid {:line-attributes {:stroke-width 10}})
+            output (render grid render-env)]
+        (is (vector? output))
+        (is (= :svg (first output)))
+        (is (= 4 (count (sm/select [s/ALL vector?] output)))
+            "Four cell groups should be rendered.")
+        (let [lines (sm/select
                       [s/ALL (is-svg-tag? :g) s/ALL (is-svg-tag? :line)]
-                      output)))
-        "Two connecting lines should be rendered.")))
+                      output)]
+          (is (= 2 (count lines)) "Two connecting lines should be rendered.")
+          (is (= 10 (:stroke-width (last (first lines))))
+              "Connecting lines should use render-env line options."))
+        (is (string? (hiccup/html output)) "Hiccup string output should succeed.")))))
