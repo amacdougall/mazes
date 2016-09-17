@@ -2,7 +2,8 @@
   "Basic grid structure for maze wrangling."
   (:require [clojure.spec :as spec]
             [com.rpl.specter :as s]
-            [com.rpl.specter.macros :as sm]))
+            #?(:clj [com.rpl.specter.macros :as sm]))
+  #?(:cljs (:require-macros [com.rpl.specter.macros :as sm])))
 
 (spec/def ::x integer?)
 (spec/def ::y integer?)

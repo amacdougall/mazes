@@ -4,7 +4,8 @@
   (:require [mazes.grid :as grid]
             [clojure.spec :as spec]
             [com.rpl.specter :as s]
-            [com.rpl.specter.macros :as sm]))
+            #?(:clj [com.rpl.specter.macros :as sm :include-macros true]))
+  #?(:cljs (:require-macros [com.rpl.specter.macros :as sm])))
 
 (def default-svg-attributes
   {:version "1.1"

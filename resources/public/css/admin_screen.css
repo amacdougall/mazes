@@ -1,0 +1,22 @@
+html, body {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  height: 100%;
+  padding-top: 40px; }
+
+div.main {
+  display: flex;
+  flex-direction: row; }
+
+div.nav {
+  min-width: 5rem;
+  width: 20%; }
+
+.users-list__item div {
+  margin: 0.25rem 1rem 0.25rem 0; }
+
+.users-list__user-name {
+  width: 20rem;
+  font-weight: bold; }
+
+.link-button {
+  font-weight: bold; }

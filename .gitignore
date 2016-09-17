@@ -5,8 +5,12 @@ pom.xml
 pom.xml.asc
 *.jar
 *.class
-/.lein-*
-/.nrepl-port
 .hgignore
 .hg/
 scratch.*
+
+# clojure stuff
+/.lein-*
+/.nrepl-port
+figwheel_server.log
+resources/public/js/compiled/
