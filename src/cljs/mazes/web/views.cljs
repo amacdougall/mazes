@@ -15,13 +15,13 @@
       (when (and @grid @render-env)
         (svg/render @render-env @grid)))))
 
-(defn slider [k {:keys [min max]}]
+(defn slider [k {:keys [label min max]}]
   (let [value (subscribe [k])]
     (fn []
       [re-com/v-box
        :children
        [[re-com/label
-         :label @value]
+         :label (str label ": " @value)]
         [re-com/slider
          :style {:width "100%"}
          :model @value
@@ -53,10 +53,10 @@
         :gap "2rem"
         :children
         [[:h2 "Left Pane"]
-         [slider :columns {:min 2 :max 20}]
-         [slider :rows {:min 2 :max 20}]
-         [slider :width {:min 100 :max 1000}]
-         [slider :height {:min 100 :max 1000}]
+         [slider :columns {:label "Columns" :min 2 :max 20}]
+         [slider :rows {:label "Rows" :min 2 :max 20}]
+         [slider :width {:label "Width" :min 100 :max 1000}]
+         [slider :height {:label "Height" :min 100 :max 1000}]
          [re-com/button
           :label "Generate Maze"
           :on-click #(dispatch [:generate-maze])]]]
