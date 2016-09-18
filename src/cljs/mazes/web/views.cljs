@@ -1,9 +1,19 @@
 (ns mazes.web.views
     (:require [re-frame.core :as re-frame :refer [subscribe dispatch]]
               [re-com.core :as re-com]
+              [mazes.algorithms.sidewinder :as sidewinder]
+              [mazes.grid :as grid]
+              [mazes.renderers.svg :as svg]
               [mazes.web.handlers :as handlers]))
 
 ; TODO: CSS for everything
+
+(defn maze-svg []
+  (let [grid (subscribe [:grid])
+        render-env (subscribe [:svg-render-environment])]
+    (fn []
+      (when (and @grid @render-env)
+        (svg/render @render-env @grid)))))
 
 (defn slider [k {:keys [min max]}]
   (let [value (subscribe [k])]
@@ -40,16 +50,19 @@
        [re-com/v-box
         :style (merge rounded-panel
                       {:width "100%"})
+        :gap "2rem"
         :children
         [[:h2 "Left Pane"]
          [slider :columns {:min 2 :max 20}]
          [slider :rows {:min 2 :max 20}]
          [slider :width {:min 100 :max 1000}]
          [slider :height {:min 100 :max 1000}]
-         ]]
+         [re-com/button
+          :label "Generate Maze"
+          :on-click #(dispatch [:generate-maze])]]]
        :panel-2
        [:div {:style (merge rounded-panel
                             {:width "100%"
                              :margin-right "20px"})}
-        ]
+        [maze-svg]]
        ]]]))
