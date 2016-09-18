@@ -260,7 +260,7 @@
         grid (grid/link grid (grid/find-cell grid 0 0) ::grid/s)]
     (testing "with default render environment"
       (let [render-env (render-environment grid)
-            output (render grid render-env)]
+            output (render render-env grid)]
         (is (vector? output))
         (is (= :svg (first output)))
         (is (= 4 (count (sm/select [s/ALL vector?] output)))
@@ -272,7 +272,7 @@
         (is (string? (hiccup/html output)) "Hiccup string output should succeed.")))
     (testing "with custom render environment"
       (let [render-env (render-environment grid {:line-attributes {:stroke-width 10}})
-            output (render grid render-env)]
+            output (render render-env grid)]
         (is (vector? output))
         (is (= :svg (first output)))
         (is (= 4 (count (sm/select [s/ALL vector?] output)))

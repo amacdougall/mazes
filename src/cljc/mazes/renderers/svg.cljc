@@ -193,9 +193,9 @@
 (defn find-lines [g] (sm/select [s/ALL (is-svg-tag? :line)] g))
 
 (defn render
-  "Given a grid and a render environment, returns an SVG rendering as Hiccup
+  "Given a render environment and a grid, returns an SVG rendering as Hiccup
   data structures. All numeric values are in user units."
-  [grid render-env]
+  [render-env grid]
   (into (svg render-env)
         (map (partial render-cell render-env)
              (grid/all-cells grid))))
