@@ -29,6 +29,20 @@
          :max max
          :on-change #(dispatch [:update k %])]]])))
 
+(defn size-spacing-ratio-slider [{:keys [label min max]}]
+  (let [value (subscribe [:size-spacing-ratio])]
+    (fn []
+      [re-com/v-box
+       :children
+       [[re-com/label
+         :label (str label ": " @value)]
+        [re-com/slider
+         :style {:width "100%"}
+         :model (* 100 @value)
+         :min min
+         :max max
+         :on-change #(dispatch [:update :size-spacing-ratio (/ % 100)])]]])))
+
 (def rounded-panel
   (merge {:background-color "white"
           :border           "1px solid lightgray"
@@ -57,6 +71,7 @@
          [slider :rows {:label "Rows" :min 2 :max 20}]
          [slider :width {:label "Width" :min 100 :max 1000}]
          [slider :height {:label "Height" :min 100 :max 1000}]
+         [size-spacing-ratio-slider {:label "Size/Spacing Ratio" :min 25 :max 75}]
          [re-com/button
           :label "Generate Maze"
           :on-click #(dispatch [:generate-maze])]]]
