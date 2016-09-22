@@ -8,6 +8,8 @@
 (re-frame/reg-sub :width (fn [db] (:width db)))
 (re-frame/reg-sub :height (fn [db] (:height db)))
 (re-frame/reg-sub :size-spacing-ratio (fn [db] (:size-spacing-ratio db)))
+(re-frame/reg-sub :rect-attributes (fn [db] (:rect-attributes db)))
+(re-frame/reg-sub :line-attributes (fn [db] (:line-attributes db)))
 
 (re-frame/reg-sub :grid (fn [db] (:grid db)))
 

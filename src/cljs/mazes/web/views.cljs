@@ -15,20 +15,26 @@
       (when (and @grid @render-env)
         (svg/render @render-env @grid)))))
 
-(defn slider [k {:keys [label min max]}]
-  (let [value (subscribe [k])]
+;; Given a keypath such as [:top] or [:top :node :leaf], returns a slider which
+;; alters this value. Real-world example: [:columns], which is at the top level
+;; of the app db; [:rect-attributes :fill], which is one level down.
+(defn slider [ks {:keys [label min max]}]
+  (let [value (subscribe [(first ks)])
+        target-value (fn [top] (get-in top (rest ks)))]
     (fn []
       [re-com/v-box
        :children
        [[re-com/label
-         :label (str label ": " @value)]
+         :label (str label ": " (target-value @value) )]
         [re-com/slider
          :style {:width "100%"}
-         :model @value
+         :model (target-value @value)
          :min min
          :max max
-         :on-change #(dispatch [:update k %])]]])))
+         :on-change #(dispatch [:update ks %])]]])))
 
+;; Perhaps the definition of slider could be expanded to accomodate this
+;; behavior, but whatever.
 (defn size-spacing-ratio-slider [{:keys [label min max]}]
   (let [value (subscribe [:size-spacing-ratio])]
     (fn []
@@ -67,11 +73,16 @@
         :gap "2rem"
         :children
         [[:h2 "Left Pane"]
-         [slider :columns {:label "Columns" :min 2 :max 20}]
-         [slider :rows {:label "Rows" :min 2 :max 20}]
-         [slider :width {:label "Width" :min 100 :max 1000}]
-         [slider :height {:label "Height" :min 100 :max 1000}]
+         [:h3 "Geometry"]
+         [slider [:columns] {:label "Columns" :min 2 :max 20}]
+         [slider [:rows] {:label "Rows" :min 2 :max 20}]
+         [slider [:width] {:label "Width" :min 100 :max 1000}]
+         [slider [:height] {:label "Height" :min 100 :max 1000}]
          [size-spacing-ratio-slider {:label "Size/Spacing Ratio" :min 25 :max 75}]
+         [:h3 "Lines"]
+         [slider [:line-attributes :stroke-width] {:label "Thickness" :min 1 :max 100}]
+         [:h3 "Rooms"]
+         ; TODO
          [re-com/button
           :label "Generate Maze"
           :on-click #(dispatch [:generate-maze])]
