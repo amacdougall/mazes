@@ -2,6 +2,7 @@
   "Renderer which generates SVG markup for maze grids. The render function
   produces Hiccup data; use the render-svg function to get an SVG string."
   (:require [mazes.grid :as grid]
+            [mazes.helpers :refer [deep-merge]]
             [clojure.spec :as spec]
             [com.rpl.specter :as s]
             #?(:clj [com.rpl.specter.macros :as sm :include-macros true]))
@@ -13,10 +14,7 @@
    :xmlns "http://www.w3.org/2000/svg"
    :width 1000
    :height 800
-   :viewbox {:x 0
-             :y 0
-             :width 1000
-             :height 800}})
+   :viewbox "0 0 1000 800"})
 
 (def default-stroke-attributes
   {:stroke "black"
@@ -26,7 +24,7 @@
 
 (def default-rect-attributes
   (merge default-stroke-attributes
-         {:fill-opacity 1.0}))
+         {:fill "black"}))
 
 ; In principle, may differ from stroke attributes.
 (def default-line-attributes default-stroke-attributes)
@@ -96,13 +94,15 @@
   ([grid]
    (render-environment grid default-render-environment-options))
   ([grid options]
-   ; use default-render-environment-options as base; add user options; add default viewbox
-   (let [options (merge default-render-environment-options options) 
-         options (merge options
-                        (when (and (:width options)
-                                   (:height options)
-                                   (nil? (:viewbox options)))
-                          {:viewbox (assoc (select-keys options #{:width :height}) :x 0 :y 0)}))
+   ; use default-render-environment-options as base; add user options; add
+   ; default viewbox; note the use of deep-merge, since some option values can
+   ; be nested maps.
+   (let [options (deep-merge default-render-environment-options options)
+         options (deep-merge options
+                             (when (and (:width options)
+                                        (:height options)
+                                        (nil? (:viewbox options)))
+                               {:viewbox (assoc (select-keys options #{:width :height}) :x 0 :y 0)}))
          {:keys [width height size-spacing-ratio margin viewbox]} options
          columns (grid/column-count grid)
          rows (grid/row-count grid)

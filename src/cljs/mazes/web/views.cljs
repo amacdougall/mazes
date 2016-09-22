@@ -74,7 +74,8 @@
          [size-spacing-ratio-slider {:label "Size/Spacing Ratio" :min 25 :max 75}]
          [re-com/button
           :label "Generate Maze"
-          :on-click #(dispatch [:generate-maze])]]]
+          :on-click #(dispatch [:generate-maze])]
+         ]]
        :panel-2
        [:div {:style (merge rounded-panel
                             {:width "100%"

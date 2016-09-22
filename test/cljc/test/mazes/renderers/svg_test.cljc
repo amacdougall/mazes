@@ -59,7 +59,7 @@
       (is (≈ 2 (:y attributes)))
       (is (≈ 100 (:width attributes)))
       (is (≈ 200 (:height attributes)))
-      (is (= default-stroke-attributes (select-keys attributes (keys default-stroke-attributes)))))))
+      (is (has-values? default-rect-attributes attributes)))))
 
 (deftest test-line
   (let [output (line {:x1 10 :y1 20 :x2 100 :y2 200})]
@@ -70,7 +70,7 @@
       (is (≈ 20 (:y1 attributes)))
       (is (≈ 100 (:x2 attributes)))
       (is (≈ 200 (:y2 attributes)))
-      (is (= default-stroke-attributes (select-keys attributes (keys default-stroke-attributes)))))))
+      (is (has-values? default-line-attributes attributes)))))
 
 (deftest test-render-environment
   (testing "without explicit options"
@@ -100,14 +100,16 @@
           height 600
           margin 5
           size-spacing-ratio 0.6
+          rect-attributes {:stroke-width 10 :stroke "green" :fill "yellow"}
+          line-attributes {:stroke-width 30 :stroke "blue"}
           env (render-environment
                 (grid/create-grid columns rows)
                 {:width width
                  :height height
                  :margin margin
                  :size-spacing-ratio size-spacing-ratio
-                 :rect-attributes {:stroke-width 10 :stroke "green" :fill "yellow"}
-                 :line-attributes {:stroke-width 30 :stroke "blue"}})]
+                 :rect-attributes rect-attributes
+                 :line-attributes line-attributes})]
       (is (not (nil? env)))
       (is (map? env))
       (is (≈ width (:width (:viewbox env))))
@@ -124,7 +126,9 @@
                 (* (:cell-v-spacing env) (- rows 1))
                 (* 2 margin)))
           "Cell heights, separated by v-spacings, must equal width minus
-          margin on each side.")))
+          margin on each side.")
+      (is (has-values? rect-attributes (:rect-attributes env)))
+      (is (has-values? line-attributes (:line-attributes env)))))
   (testing "with incomplete explicit options"
     (let [env (render-environment
                 (grid/create-grid 2 2)
@@ -148,10 +152,10 @@
         bottom-left-cell (grid/find-cell grid 0 (- columns 1))
         bottom-left (room-geometry render-env bottom-left-cell)
         bottom-right-cell (grid/find-cell grid (- rows 1) (- columns 1))
-        bottom-right (room-geometry render-env bottom-right-cell) ]
+        bottom-right (room-geometry render-env bottom-right-cell)]
+
     (testing "return type"
       (is (map? top-left)))
-
 
     (testing "top left"
       (is (≈ (:margin render-env) (:x top-left)))
@@ -190,13 +194,20 @@
       (is (≈ (:cell-height render-env) (:height bottom-right))))))
 
 (deftest test-render-rect
-  (let [grid (grid/create-grid 1 1)
-        render-env (render-environment grid)
-        rect (render-rect render-env (grid/find-cell grid 0 0))]
-    (is (vector? rect))
-    (is (= :rect (first rect)))
-    (is (map? (last rect)))
-    (is (has-values? (room-geometry render-env (grid/find-cell grid 0 0)) (last rect)))))
+  (let [grid (grid/create-grid 1 1)]
+    (testing "with default render-env"
+      (let [render-env (render-environment grid)
+            rect (render-rect render-env (grid/find-cell grid 0 0))]
+        (is (vector? rect))
+        (is (= :rect (first rect)))
+        (is (map? (last rect)))
+        (is (has-values? (room-geometry render-env (grid/find-cell grid 0 0)) (last rect)))
+        (is (has-values? default-rect-attributes (last rect)))))
+
+    (testing "with custom :rect-attributes"
+      (let [render-env (render-environment grid {:rect-attributes {:stroke-width 1}})
+            rect (render-rect render-env (grid/find-cell grid 0 0))]
+        (is (has-values? {:stroke-width 1} (last rect)))))))
 
 (deftest test-anchor-point
   (let [g {:x 10 :y 20 :width 100 :height 200}]
@@ -222,7 +233,7 @@
     (is (vector? line))
     (is (= :line (first line)))
     (is (map? (last line)))
-    (is (has-values? default-stroke-attributes (last line)))
+    (is (has-values? default-line-attributes (last line)))
     (let [{:keys [x1 y1 x2 y2]} (last line)]
       (is (= (anchor-point start-room ::grid/e) [x1 y1]))
       (is (= (anchor-point end-room ::grid/w) [x2 y2])))))
@@ -265,10 +276,13 @@
         (is (= :svg (first output)))
         (is (= 4 (count (sm/select [s/ALL vector?] output)))
             "Four cell groups should be rendered.")
-        (is (= 2 (count (sm/select
-                          [s/ALL (is-svg-tag? :g) s/ALL (is-svg-tag? :line)]
-                          output)))
-            "Two connecting lines should be rendered.")
+        (let [lines (sm/select
+                      [s/ALL (is-svg-tag? :g) s/ALL (is-svg-tag? :line)]
+                      output)]
+          (is (= 2 (count lines)) "Two connecting lines should be rendered.")
+          (is (= (:stroke-width default-line-attributes)
+                 (:stroke-width (last (first lines))))
+              "Lines should use default line stroke width."))
         (is (string? (hiccup/html output)) "Hiccup string output should succeed.")))
     (testing "with custom render environment"
       (let [render-env (render-environment grid {:line-attributes {:stroke-width 10}})
