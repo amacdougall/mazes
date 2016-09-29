@@ -49,6 +49,24 @@
          :max max
          :on-change #(dispatch [:update :size-spacing-ratio (/ % 100)])]]])))
 
+;; Given a keypath such as [:top] or [:top :node :leaf], returns an input field
+;; which accepts only a color hex, which alters this value in the app db.
+(defn color [ks {:keys [label]}]
+  (let [value (subscribe [(first ks)])
+        target-value (fn [top] (get-in top (rest ks)))]
+    (fn []
+      [re-com/v-box
+       :children
+       [[re-com/label :label label]
+        [re-com/input-text
+         :model (target-value @value)
+         :on-change #(dispatch [:update ks %])
+         ]
+        ]]
+      )
+    )
+  )
+
 (def rounded-panel
   (merge {:background-color "white"
           :border           "1px solid lightgray"
@@ -69,7 +87,8 @@
        :panel-1
        [re-com/v-box
         :style (merge rounded-panel
-                      {:width "100%"})
+                      {:width "100%"
+                       :overflow "auto"})
         :gap "2rem"
         :children
         [[:h2 "Left Pane"]
@@ -81,8 +100,11 @@
          [size-spacing-ratio-slider {:label "Size/Spacing Ratio" :min 25 :max 75}]
          [:h3 "Lines"]
          [slider [:line-attributes :stroke-width] {:label "Thickness" :min 1 :max 100}]
+         [color [:line-attributes :stroke] {:label "Color"}]
          [:h3 "Rooms"]
-         ; TODO
+         [slider [:rect-attributes :stroke-width] {:label "Stroke Thickness" :min 1 :max 100}]
+         [color [:rect-attributes :stroke] {:label "Stroke Color"}]
+         [color [:rect-attributes :fill] {:label "Fill Color"}]
          [re-com/button
           :label "Generate Maze"
           :on-click #(dispatch [:generate-maze])]
