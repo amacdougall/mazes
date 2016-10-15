@@ -72,8 +72,16 @@
                         [::grid/e ::grid/s ::grid/w])]
     (is (contains? (::grid/exits (find-cell grid 0 0)) ::grid/e))
     (is (contains? (::grid/exits (find-cell grid 1 0)) ::grid/s))
-    (is (contains? (::grid/exits (find-cell grid 1 1)) ::grid/w))
-    ))
+    (is (contains? (::grid/exits (find-cell grid 1 1)) ::grid/w))))
+
+(deftest test-cells-on-path
+  (let [grid (create-grid 2 2)
+        path [::grid/e ::grid/s ::grid/w]
+        result (cells-on-path grid (find-cell grid 0 0) path)]
+    (is (= [(find-cell grid 0 0)
+            (find-cell grid 1 0)
+            (find-cell grid 1 1)]
+           result))))
 
 (deftest test-linked-cells
   (let [grid (create-grid 3 3)

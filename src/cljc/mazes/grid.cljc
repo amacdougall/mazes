@@ -161,15 +161,33 @@
   "Given a grid, a starting cell, and a sequence of directions, links up a path
   through the maze using those directions. Makes no provision for going out of
   bounds or creating cycles in the maze graph, so beware!"
-  [grid cell directions]
-  (if (empty? directions)
+  [grid cell path]
+  (if (empty? path)
     grid
-    (recur (link grid cell (first directions))
-           (move grid cell (first directions))
-           (rest directions))))
+    (recur (link grid cell (first path))
+           (move grid cell (first path))
+           (rest path))))
 (spec/fdef link-path
-  :args (spec/cat :grid ::grid :cell ::cell :directions (spec/coll-of ::direction))
+  :args (spec/cat :grid ::grid :cell ::cell :path (spec/coll-of ::direction))
   :ret ::grid)
+
+(defn cells-on-path
+  "Given a grid, a starting cell, and a sequence of directions, returns a
+  vector of the cells which lie along that path, regardless of whether they are
+  linked by exits or not. Use link-path if you wish to ensure that they are
+  linked."
+  ([grid cell path]
+   (cells-on-path grid cell path []))
+  ([grid cell path result]
+   (if (empty? path)
+     (vec result)
+     (recur grid
+            (move grid cell (first path))
+            (rest path)
+            (conj result cell)))))
+(spec/fdef cells-on-path
+  :args (spec/cat :grid ::grid :cell ::cell :path (spec/coll-of ::direction)
+                  :result (spec/? (spec/coll-of ::cell))))
 
 (defn column-count
   "Given a grid, returns the number of columns in the grid."
