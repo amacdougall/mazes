@@ -65,6 +65,40 @@
     (is (= 1 (count (::grid/exits cell-a))))
     (is (= 1 (count (::grid/exits cell-b))))))
 
+(deftest test-linked-cells
+  (let [grid (create-grid 3 3)
+        ; link the top left cell to its eastern neighbor
+        grid (link grid (find-cell grid 0 0) ::grid/e)
+        ; link the center cell in the cardinal directions
+        grid (link grid (find-cell grid 1 1) ::grid/n)
+        grid (link grid (find-cell grid 1 1) ::grid/e)
+        grid (link grid (find-cell grid 1 1) ::grid/s)
+        grid (link grid (find-cell grid 1 1) ::grid/w)]
+    (let [cell (find-cell grid 0 0)
+          neighbors (linked-cells grid cell)]
+      (is (= 1 (count neighbors)))
+      (is (= (find-cell grid 1 0) (first neighbors))))
+    (let [cell (find-cell grid 1 1)
+          directions [::grid/n ::grid/e ::grid/s ::grid/w]
+          expected-neighbors (set (map (partial move grid cell) directions))
+          neighbors (linked-cells grid cell)]
+      (is (= 4 (count neighbors)))
+      (is (every? expected-neighbors neighbors)))))
+
+(deftest test-has-exit?
+  (let [grid (create-grid 3 3)
+        grid (link grid (find-cell grid 1 1) ::grid/e)
+        grid (link grid (find-cell grid 1 1) ::grid/s)
+        cell (find-cell grid 1 1)
+        east (move grid cell ::grid/e)
+        south (move grid cell ::grid/s)
+        north (move grid cell ::grid/n)
+        neighbors (linked-cells grid cell)]
+    (is (not (empty? neighbors)))
+    (is (= 2 (count neighbors)))
+    (is (every? #{east south} neighbors))))
+
+
 (deftest test-column-count
   (let [grid (create-grid 20 20)]
     (is (= 20 (column-count grid)))))

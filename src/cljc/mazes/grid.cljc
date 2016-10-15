@@ -126,6 +126,12 @@
   :args (spec/cat :cell ::cell :direction ::direction)
   :ret boolean?)
 
+(defn linked-cells
+  "Given a grid and a cell, returns a vector of all the reachable neighboring
+  cells."
+  [grid cell]
+  (mapv (partial move grid cell) (::exits cell)))
+
 ;; Returns the cell, with the supplied exit added.
 (defn- add-exit [cell direction]
   (update cell ::exits conj direction))
