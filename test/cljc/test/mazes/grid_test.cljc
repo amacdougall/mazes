@@ -65,6 +65,16 @@
     (is (= 1 (count (::grid/exits cell-a))))
     (is (= 1 (count (::grid/exits cell-b))))))
 
+(deftest test-link-path
+  (let [grid (create-grid 3 3)
+        ; make a path [0 0], [1 0], [1 1], [1 0]
+        grid (link-path grid (find-cell grid 0 0)
+                        [::grid/e ::grid/s ::grid/w])]
+    (is (contains? (::grid/exits (find-cell grid 0 0)) ::grid/e))
+    (is (contains? (::grid/exits (find-cell grid 1 0)) ::grid/s))
+    (is (contains? (::grid/exits (find-cell grid 1 1)) ::grid/w))
+    ))
+
 (deftest test-linked-cells
   (let [grid (create-grid 3 3)
         ; link the top left cell to its eastern neighbor

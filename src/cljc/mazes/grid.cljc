@@ -157,6 +157,20 @@
   :args (spec/cat :grid ::grid :cell ::cell :direction ::direction)
   :ret ::grid)
 
+(defn link-path
+  "Given a grid, a starting cell, and a sequence of directions, links up a path
+  through the maze using those directions. Makes no provision for going out of
+  bounds or creating cycles in the maze graph, so beware!"
+  [grid cell directions]
+  (if (empty? directions)
+    grid
+    (recur (link grid cell (first directions))
+           (move grid cell (first directions))
+           (rest directions))))
+(spec/fdef link-path
+  :args (spec/cat :grid ::grid :cell ::cell :directions (spec/coll-of ::direction))
+  :ret ::grid)
+
 (defn column-count
   "Given a grid, returns the number of columns in the grid."
   [grid]
