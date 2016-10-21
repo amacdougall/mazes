@@ -53,23 +53,57 @@
     {::g/grid grid
      ::unvisited unvisited
      ::distances distances
-     ::current (key (apply min-key val (select-keys distances unvisited)))}))
+     ::current (if (empty? unvisited)
+                 nil
+                 (key (apply min-key val (select-keys distances unvisited))))}))
 (spec/fdef step
   :args (spec/cat :values ::step-values)
   :ret ::step-values)
 
 (defn solve
-  "Given a grid and start and end cells, uses Dijkstra's algorithm to produce a
-  map of [::g/cell int?] map-entries; e.g. {<cell> <int>, ...}."
-  ;; Implemented by repeatedly executing the step function in a loop.
-  [grid origin destination]
+  "Given a grid and an origin cell, uses Dijkstra's algorithm to generate a map
+  of the distances of each cell from the origin cell, in the form {<cell>
+  <int>, ...}. This map is guaranteed to have a distance for every reachable
+  cell.
 
-  )
+  Given a grid, an origin cell, and a destination cell, returns a distance map
+  which is guaranteed to contain the shortest distance for the destination
+  cell, but may not have distances for any other cells.
+
+  In both cases, unreachable cells will not be represented in the map."
+  ([grid origin]
+   (solve grid origin nil))
+  ([grid origin destination]
+   ;; NOTE: If no cells have less than infinite distance, they must not have
+   ;; been linked to any visited cell.
+   (let [complete? (if (nil? destination)
+                     ; true when all reachable cells have been visited
+                     (fn [distances unvisited]
+                       (or (empty? unvisited)
+                           (every? (partial = infinite-distance)
+                                   (vals (select-keys distances unvisited)))))
+                     ; true when the destination cell has been visited
+                     (fn [distances unvisited]
+                       (not (contains? unvisited destination))))]
+     (loop [{:keys [::distances ::unvisited] :as values} (get-initial-values grid origin)]
+       ; (clojure.pprint/pprint values)
+       (if (complete? distances unvisited)
+         distances
+         (recur (step values)))))))
 
 (defn path
-  "Given a grid and start and end cells, uses Dijkstra's algorithm to produce a
-  collection of ::g/direction items showing the most efficient route from the
-  start cell to the end cell."
-  [grid start end]
-
-  )
+  "Given a grid and origin and destination cells, uses Dijkstra's algorithm to
+  produce a collection of ::g/direction items showing the most efficient route
+  from the start cell to the end cell."
+  [grid origin destination]
+  (let [distances (solve grid origin)]
+    (loop [cell destination, path []]
+      (if (= cell origin)
+        (reverse (map g/converse-directions path))
+        ; among neighbors, find direction which has the lowest distance in distances
+        (let [exits (::g/exits cell)
+              ; a map of cells to exits
+              neighbors (zipmap (map (partial g/move grid cell) exits) exits)
+              next-cell (key (apply min-key val (select-keys distances (keys neighbors))))
+              direction (neighbors next-cell)]
+          (recur next-cell (conj path direction)))))))
