@@ -86,7 +86,65 @@
                            (filter (::d/unvisited result)
                                    (g/linked-cells grid (g/find-cell grid 1 1)))))))))))
 
+(defn- unreachable [distances]
+  (filter (partial = infinite-distance) (vals distances)))
+
 (deftest test-solve
-  ; TODO: test the full solution
-  )
+  ; NOTE: I just plotted this test maze down on paper. To understand this code,
+  ; you should probably do the same.
+  (let [grid (g/create-grid 4 4)
+        path [::g/e ::g/s ::g/w ::g/s ::g/e ::g/e ::g/s ::g/e]
+        grid (g/link-path grid (g/find-cell grid 0 0) path)
+        ; create a dead-end branch; many cells remain unreachable
+        maze (g/link-path grid (g/find-cell grid 1 0) [::g/e ::g/s ::g/e ::g/n])
+        ; fill in the gaps to create a perfect maze
+        p-maze (g/link maze (g/find-cell maze 3 1) ::g/s)
+        p-maze (g/link-path p-maze (g/find-cell p-maze 0 2) [::g/s ::g/e])]
+    (testing "with a target destination"
+      (testing "with unreachable cells"
+        (let [origin (g/find-cell maze 0 0)
+              destination (g/find-cell maze 3 3) ; bottom right
+              distances (d/solve maze origin destination)]
+          (is (= 3 (count (unreachable distances)))
+              "three cells should have been unreachable")
+          (is (= infinite-distance (get distances (g/find-cell maze 0 3)))
+              "bottom left cell should have been unreachable")
+          (is (= 8 (get distances destination)))))
+      (testing "with no unreachable cells"
+        ; fill in the gaps
+        (let [origin (g/find-cell p-maze 0 0)
+              destination (g/find-cell p-maze 3 3)
+              distances (d/solve p-maze origin destination)]
+          (is (empty? (unreachable distances)))
+          (is (= 8 (get distances destination)))
+          ))
+      (testing "with a target destination that leaves cells unexplored"
+        (let [origin (g/find-cell p-maze 0 0)
+              destination (g/find-cell p-maze 2 2)
+              distances (d/solve grid origin destination)]
+          (is (= infinite-distance (get distances (g/find-cell grid 0 3)))
+              "cell beyond the destination should be unvisited")
+          (is (= 6 (get distances destination))))))
+    (testing "with no target destination"
+      (let [origin (g/find-cell maze 1 1)
+            distances (d/solve maze origin)]
+        (is (= 3 (count (unreachable distances))))
+        (is (= 0 (get distances origin)))
+        (is (= 1 (get distances (g/move maze origin ::g/n)))))
+      (let [origin (g/find-cell p-maze 1 1)
+            distances (d/solve p-maze origin)]
+        (is (empty? (unreachable distances)))))))
+
+; A single test should be sufficient: all logic except the distances->path
+; translation is covered by the dijkstra/solve tests.
+(deftest test-path
+  (let [grid (g/create-grid 4 4)
+        path [::g/e ::g/s ::g/w ::g/s ::g/e ::g/e ::g/s ::g/e]
+        grid (g/link-path grid (g/find-cell grid 0 0) path)
+        ; add a dead end
+        grid (g/link-path grid (g/find-cell grid 1 0) [::g/e ::g/s ::g/e ::g/n])
+        origin (g/find-cell grid 0 0)
+        destination (g/find-cell grid 3 3)
+        solved-path (d/path grid origin destination)]
+    (is (= path solved-path))))
 
