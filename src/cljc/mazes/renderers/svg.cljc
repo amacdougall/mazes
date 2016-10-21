@@ -1,7 +1,7 @@
 (ns mazes.renderers.svg
   "Renderer which generates SVG markup for maze grids. The render function
   produces Hiccup data; use the render-svg function to get an SVG string."
-  (:require [mazes.grid :as grid]
+  (:require [mazes.grid :as g]
             [mazes.helpers :refer [deep-merge]]
             [clojure.spec :as spec]
             [com.rpl.specter :as s]
@@ -78,7 +78,7 @@
   Values returned:
     :grid - The grid which is being rendered; rendering functions may use this
       for additional information. For instance, drawing connections between
-      rooms is simplified when grid/find-cell is available.
+      rooms is simplified when g/find-cell is available.
 
     :width - Passed through from input options.
     :height - Passed through from input options.
@@ -104,8 +104,8 @@
                                         (nil? (:viewbox options)))
                                {:viewbox (assoc (select-keys options #{:width :height}) :x 0 :y 0)}))
          {:keys [width height size-spacing-ratio margin viewbox]} options
-         columns (grid/column-count grid)
-         rows (grid/row-count grid)
+         columns (g/column-count grid)
+         rows (g/row-count grid)
          cell-area-width (- width (* 2 margin))
          cell-area-height (- height (* 2 margin))
          width-per-cell (/ cell-area-width columns)
@@ -124,18 +124,18 @@
                                 (max (- rows 1) 1))}))))
 
 (defn room-geometry
-  "Given a render-environment map and a ::grid/cell, returns a map with keys :x,
+  "Given a render-environment map and a ::g/cell, returns a map with keys :x,
   :y, :width, and :height, which can be used as attributes of an SVG rect."
   [{:keys [margin cell-width cell-height cell-h-spacing cell-v-spacing]} cell]
-  {:x (+ margin (* (::grid/x cell) (+ cell-width cell-h-spacing)))
-   :y (+ margin (* (::grid/y cell) (+ cell-height cell-v-spacing)))
+  {:x (+ margin (* (::g/x cell) (+ cell-width cell-h-spacing)))
+   :y (+ margin (* (::g/y cell) (+ cell-height cell-v-spacing)))
    :width cell-width
    :height cell-height})
 
 (defn anchor-point
-  "Given a room-geometry result and the ::grid/direction keyword for one of its
+  "Given a room-geometry result and the ::g/direction keyword for one of its
   corners, returns an [x y] coordinate pair vector for that point on the
-  rendered cell. For instance, (anchor-point geometry ::grid/nw) returns the
+  rendered cell. For instance, (anchor-point geometry ::g/nw) returns the
   coordinates of the top-left corner of the rect."
   [{:keys [x y width height]} direction]
   (let [left x
@@ -145,16 +145,16 @@
         v-center (+ y (/ height 2))
         bottom (+ y height)]
     (condp = direction
-      ::grid/n  [h-center top]
-      ::grid/ne [right top]
-      ::grid/e  [right v-center]
-      ::grid/se [right bottom]
-      ::grid/s  [h-center bottom]
-      ::grid/sw [left bottom]
-      ::grid/w  [left v-center]
-      ::grid/nw [left top])))
+      ::g/n  [h-center top]
+      ::g/ne [right top]
+      ::g/e  [right v-center]
+      ::g/se [right bottom]
+      ::g/s  [h-center bottom]
+      ::g/sw [left bottom]
+      ::g/w  [left v-center]
+      ::g/nw [left top])))
 (spec/fdef anchor-point
-  :args (spec/cat :geometry map? :grid ::grid/direction)
+  :args (spec/cat :geometry map? :grid ::g/direction)
   :ret (spec/coll-of number? :min-count 2 :max-count 2))
 
 (defn render-rect [render-env cell]
@@ -162,27 +162,27 @@
 
 (defn render-line [render-env cell direction]
   (let [start-room (room-geometry render-env cell)
-        end-cell (grid/move (:grid render-env) cell direction)
+        end-cell (g/move (:grid render-env) cell direction)
         end-room (room-geometry render-env end-cell)
         [x1 y1] (anchor-point start-room direction)
-        [x2 y2] (anchor-point end-room (direction grid/converse-directions))]
+        [x2 y2] (anchor-point end-room (direction g/converse-directions))]
     (line (merge (:line-attributes render-env)
                  {:x1 x1, :y1 y1, :x2 x2, :y2 y2}))))
 (spec/fdef render-line
-  :args (spec/cat :render-env map? :cell ::grid/cell :direction ::grid/direction)
+  :args (spec/cat :render-env map? :cell ::g/cell :direction ::g/direction)
   :ret vector?)
 
 (defn render-cell
-  "Given a render-environment map and a ::grid/cell, returns an SVG group
+  "Given a render-environment map and a ::g/cell, returns an SVG group
   containing a room rect, and lines connecting it to its neighbors in the
   northest, east, southeast, and south directions. Assuming at least a 2x2 grid,
   this will be sufficient to render all connections among cells."
   [render-env cell]
   (into [:g (render-rect render-env cell)]
         (map (partial render-line render-env cell)
-             (filter #{::grid/ne ::grid/e ::grid/se ::grid/s} (::grid/exits cell)))))
+             (filter #{::g/ne ::g/e ::g/se ::g/s} (::g/exits cell)))))
 (spec/fdef render-cell
-  :args (spec/cat :render-env map? :cell ::grid/cell :existing-lines (spec/? set?)))
+  :args (spec/cat :render-env map? :cell ::g/cell :existing-lines (spec/? set?)))
 
 ; Specter helper functions for reading render-cell results
 (defn is-svg-tag? [tag]
@@ -198,4 +198,4 @@
   [render-env grid]
   (into (svg render-env)
         (map (partial render-cell render-env)
-             (grid/all-cells grid))))
+             (g/all-cells grid))))

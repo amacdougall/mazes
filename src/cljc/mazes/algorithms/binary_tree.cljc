@@ -1,6 +1,6 @@
 (ns mazes.algorithms.binary-tree
   "An implementation of the binary tree maze generation algorithm."
-  (:require [mazes.grid :as grid]
+  (:require [mazes.grid :as g]
             [clojure.spec :as s]))
 
 (defn generate
@@ -9,12 +9,12 @@
   [grid]
   (reduce
     (fn [grid cell]
-      (let [open-directions (filter (partial grid/move grid cell) [::grid/s ::grid/e])]
+      (let [open-directions (filter (partial g/move grid cell) [::g/s ::g/e])]
         (if (empty? open-directions)
           grid
-          (grid/link grid cell (rand-nth open-directions)))))
+          (g/link grid cell (rand-nth open-directions)))))
     grid
-    (grid/all-cells grid)))
+    (g/all-cells grid)))
 (s/fdef generate
-  :args (s/cat :grid ::grid/grid)
-  :ret ::grid/grid)
+  :args (s/cat :grid ::g/grid)
+  :ret ::g/grid)
