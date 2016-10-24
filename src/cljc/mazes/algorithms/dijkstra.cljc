@@ -74,8 +74,8 @@
   ([grid origin]
    (solve grid origin nil))
   ([grid origin destination]
-   ;; NOTE: If no cells have less than infinite distance, they must not have
-   ;; been linked to any visited cell.
+   ;; NOTE: If all remaining cells have infinite distance, they must have been
+   ;; unreachable.
    (let [complete? (if (nil? destination)
                      ; true when all reachable cells have been visited
                      (fn [distances unvisited]
