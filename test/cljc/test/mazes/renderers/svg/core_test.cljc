@@ -4,7 +4,8 @@
             [clojure.spec.test :as stest]
             [hiccup.core :as hiccup]
             [mazes.grid :as g]
-            [mazes.renderers.svg.core :refer :all :as svg]
+            [mazes.renderers.core :refer [render-cell]]
+            [mazes.renderers.svg.core :refer :all]
             [test.mazes.helpers :refer [has-values? equal-numbers?]]
             [com.rpl.specter :as s]
             [com.rpl.specter.macros :as sm]))
