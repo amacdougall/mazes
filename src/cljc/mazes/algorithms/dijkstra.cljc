@@ -92,18 +92,23 @@
          (recur (step values)))))))
 
 (defn path
-  "Given a grid and origin and destination cells, uses Dijkstra's algorithm to
-  produce a collection of ::g/direction items showing the most efficient route
-  from the start cell to the end cell."
-  [grid origin destination]
-  (let [distances (solve grid origin)]
-    (loop [cell destination, path []]
-      (if (= cell origin)
-        (reverse (map g/converse-directions path))
-        ; among neighbors, find direction which has the lowest distance in distances
-        (let [exits (::g/exits cell)
-              ; a map of cells to exits
-              neighbors (zipmap (map (partial g/move grid cell) exits) exits)
-              next-cell (key (apply min-key val (select-keys distances (keys neighbors))))
-              direction (neighbors next-cell)]
-          (recur next-cell (conj path direction)))))))
+  "Given a grid, an origin cell, a destination cell, and optionally a distance
+  map produced by the solve function, returns a collection of ::g/direction
+  items showing the most efficient route from the start cell to the end cell.
+
+  The optional distances argument permits us to generate a distance map and
+  then build a path without running the algorithm twice. If a distance map is
+  not provided, this function runs Dijkstra's Algorithm on its own account."
+  ([grid origin destination]
+   (path grid origin destination (solve grid origin destination)))
+  ([grid origin destination distances]
+   (loop [cell destination, path []]
+     (if (= cell origin)
+       (reverse (map g/converse-directions path))
+       ; among neighbors, find direction which has the lowest distance in distances
+       (let [exits (::g/exits cell)
+             ; a map of cells to exits
+             neighbors (zipmap (map (partial g/move grid cell) exits) exits)
+             next-cell (key (apply min-key val (select-keys distances (keys neighbors))))
+             direction (neighbors next-cell)]
+         (recur next-cell (conj path direction)))))))
