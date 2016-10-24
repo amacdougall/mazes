@@ -1,10 +1,10 @@
-(ns test.mazes.renderers.svg-test
+(ns test.mazes.renderers.svg.core-test
   (:require [clojure.algo.generic.math-functions :refer [approx=]]
             [clojure.test :refer :all]
             [clojure.spec.test :as stest]
             [hiccup.core :as hiccup]
             [mazes.grid :as g]
-            [mazes.renderers.svg :refer :all :as svg]
+            [mazes.renderers.svg.core :refer :all :as svg]
             [test.mazes.helpers :refer [has-values? equal-numbers?]]
             [com.rpl.specter :as s]
             [com.rpl.specter.macros :as sm]))

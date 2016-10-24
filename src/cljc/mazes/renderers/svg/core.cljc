@@ -1,4 +1,4 @@
-(ns mazes.renderers.svg
+(ns mazes.renderers.svg.core
   "Renderer which generates SVG markup for maze grids. The render function
   produces Hiccup data; use the render-svg function to get an SVG string."
   (:require [mazes.grid :as g]
