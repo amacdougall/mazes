@@ -179,7 +179,7 @@
         (map (partial render-line render-env cell)
              (filter #{::g/ne ::g/e ::g/se ::g/s} (::g/exits cell)))))
 ; TODO: spec multimethod?
-#_(spec/fdef render-cell
+(spec/fdef render-cell
   :args (spec/cat :render-env map? :cell ::g/cell :existing-lines (spec/? set?)))
 
 (defmethod r/render-cell nil
@@ -193,11 +193,16 @@
 
 (defn find-rect [g] (sm/select-any [s/ALL (is-svg-tag? :rect)] g))
 (defn find-lines [g] (sm/select [s/ALL (is-svg-tag? :line)] g))
+(defn find-text [g] (sm/select-any [s/ALL (is-svg-tag? :text)] g))
+
+(defn attributes
+  "Given any SVG element, returns its attributes map."
+  [e] (sm/select-any [s/ALL map?] e))
 
 (defn render
   "Given a render environment and a grid, returns an SVG rendering as Hiccup
   data structures. All numeric values are in user units."
   [render-env grid]
   (into (svg render-env)
-        (map (partial render-cell render-env)
+        (map (partial r/render-cell render-env)
              (g/all-cells grid))))
