@@ -6,16 +6,9 @@
             [mazes.grid :as g]
             [mazes.renderers.core :refer [render-cell]]
             [mazes.renderers.svg.core :refer :all]
-            [test.mazes.helpers :refer [has-values? equal-numbers?]]
+            [test.mazes.helpers :refer [has-values? equal-numbers? ≈]]
             [com.rpl.specter :as s]
             [com.rpl.specter.macros :as sm]))
-
-;; NOTE: We're using a lot of this custom approximate-equality in these tests,
-;; because we never know when something is going to return a double instead of
-;; an int, and when division is involved, we find that this kind of check fails:
-;; (== 2.0 1.9999999999999999999999) ...in defiance of our intent.
-(defn- ≈ [a b]
-  (clojure.algo.generic.math-functions/approx= a b 1e-2))
 
 (stest/instrument)
 

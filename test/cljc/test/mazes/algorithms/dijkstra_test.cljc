@@ -90,7 +90,7 @@
   (filter (partial = infinite-distance) (vals distances)))
 
 (deftest test-solve
-  ; NOTE: I just plotted this test maze down on paper. To understand this code,
+  ; NOTE: I just plotted this test maze on paper. To understand this code,
   ; you should probably do the same.
   (let [grid (g/create-grid 4 4)
         path [::g/e ::g/s ::g/w ::g/s ::g/e ::g/e ::g/s ::g/e]
