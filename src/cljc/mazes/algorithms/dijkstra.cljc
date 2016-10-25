@@ -10,6 +10,7 @@
 (spec/def ::unvisited (spec/coll-of ::g/cell :kind set?))
 (spec/def ::distances (spec/map-of ::g/cell ::distance :conform-keys true))
 (spec/def ::step-values (spec/keys :req [::g/grid ::unvisited ::distances ::current]))
+(spec/def ::path (spec/coll-of ::direction :kind sequential?))
 
 (def infinite-distance #?(:clj Integer/MAX_VALUE, :cljs js/Infinity))
 
@@ -99,6 +100,9 @@
        (if (complete? distances unvisited)
          {:distances distances}
          (recur (step values)))))))
+(spec/fdef solve
+  :args (spec/cat :grid ::g/grid :origin ::g/cell :destination (spec/? (spec/nilable ::g/cell)))
+  :ret ::distances)
 
 (defn path
   "Given a grid, an origin cell, a destination cell, and optionally a distance
@@ -121,3 +125,6 @@
              next-cell (key (apply min-key val (select-keys distances (keys neighbors))))
              direction (neighbors next-cell)]
          (recur next-cell (conj path direction)))))))
+(spec/fdef solve
+  :args (spec/cat :grid ::g/grid :origin ::g/cell :destination (spec/? (spec/nilable ::g/cell)))
+  :ret ::path)
