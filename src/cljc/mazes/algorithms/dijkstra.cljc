@@ -62,15 +62,24 @@
 
 (defn solve
   "Given a grid and an origin cell, uses Dijkstra's algorithm to generate a map
-  of the distances of each cell from the origin cell, in the form {<cell>
-  <int>, ...}. This map is guaranteed to have a distance for every reachable
-  cell.
+  with the following key:
 
-  Given a grid, an origin cell, and a destination cell, returns a distance map
-  which is guaranteed to contain the shortest distance for the destination
-  cell, but may not have distances for any other cells.
+  :distances - a map of the distances of each cell from the origin cell, in the
+  form {<cell> <int>, ...}. This map is guaranteed to have a distance for every
+  reachable cell.
 
-  In both cases, unreachable cells will not be represented in the map."
+  Given a grid, an origin cell, and a destination cell, returns a map with the
+  following keys:
+
+  :distances - a distance map which is guaranteed to contain the shortest
+  distance for the destination cell, but may not have distances for any other
+  cells.
+
+  :path - a sequence of [cell direction] pairs, representing the cells along
+  the solution path, and the directions to move to follow the path.
+
+  In either case, the distance map may contain unreachable cells. Check for the
+  mazes.algorithms.dijkstra/infinite-distance value."
   ([grid origin]
    (solve grid origin nil))
   ([grid origin destination]
@@ -88,7 +97,7 @@
      (loop [{:keys [::distances ::unvisited] :as values} (get-initial-values grid origin)]
        ; (clojure.pprint/pprint values)
        (if (complete? distances unvisited)
-         distances
+         {:distances distances}
          (recur (step values)))))))
 
 (defn path
@@ -100,7 +109,7 @@
   then build a path without running the algorithm twice. If a distance map is
   not provided, this function runs Dijkstra's Algorithm on its own account."
   ([grid origin destination]
-   (path grid origin destination (solve grid origin destination)))
+   (path grid origin destination (:distances (solve grid origin destination))))
   ([grid origin destination distances]
    (loop [cell destination, path []]
      (if (= cell origin)

@@ -104,7 +104,7 @@
       (testing "with unreachable cells"
         (let [origin (g/find-cell maze 0 0)
               destination (g/find-cell maze 3 3) ; bottom right
-              distances (d/solve maze origin destination)]
+              distances (:distances (d/solve maze origin destination))]
           (is (= 3 (count (unreachable distances)))
               "three cells should have been unreachable")
           (is (= infinite-distance (get distances (g/find-cell maze 0 3)))
@@ -114,24 +114,24 @@
         ; fill in the gaps
         (let [origin (g/find-cell p-maze 0 0)
               destination (g/find-cell p-maze 3 3)
-              distances (d/solve p-maze origin destination)]
+              distances (:distances (d/solve p-maze origin destination))]
           (is (empty? (unreachable distances)))
           (is (= 8 (get distances destination)))))
       (testing "with a target destination that leaves cells unexplored"
         (let [origin (g/find-cell p-maze 0 0)
               destination (g/find-cell p-maze 2 2)
-              distances (d/solve grid origin destination)]
+              distances (:distances (d/solve grid origin destination))]
           (is (= infinite-distance (get distances (g/find-cell grid 0 3)))
               "cell beyond the destination should be unvisited")
           (is (= 6 (get distances destination))))))
     (testing "with no target destination"
       (let [origin (g/find-cell maze 1 1)
-            distances (d/solve maze origin)]
+            distances (:distances (d/solve maze origin))]
         (is (= 3 (count (unreachable distances))))
         (is (= 0 (get distances origin)))
         (is (= 1 (get distances (g/move maze origin ::g/n)))))
       (let [origin (g/find-cell p-maze 1 1)
-            distances (d/solve p-maze origin)]
+            distances (:distances (d/solve p-maze origin))]
         (is (empty? (unreachable distances)))))))
 
 ; A single test should be sufficient: all logic except the distances->path
