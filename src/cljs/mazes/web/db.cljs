@@ -9,5 +9,8 @@
     {:columns 4
      :rows 4
      :grid nil
-     ; TODO: allow algorithm and params change
-     :algorithm :sidewinder}))
+     :algorithm :sidewinder ; maze generation algorithm
+     :annotation ; current maze annotation: renderer may choose to display it
+     ;; NOTE: currently no standard for annotation types. The renderer just has
+     ;; to deal with it.
+     }))
