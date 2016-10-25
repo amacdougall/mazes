@@ -1,5 +1,5 @@
 (ns mazes.web.db
-  (:require [mazes.renderers.svg :as svg]))
+  (:require [mazes.renderers.svg.core :as svg]))
 
 (def app-db
   (merge
@@ -9,8 +9,8 @@
     {:columns 4
      :rows 4
      :grid nil
-     :algorithm :sidewinder ; maze generation algorithm
-     :annotation ; current maze annotation: renderer may choose to display it
-     ;; NOTE: currently no standard for annotation types. The renderer just has
-     ;; to deal with it.
-     }))
+     ; maze generation algorithm (always sidewinder right now)
+     :algorithm :sidewinder
+     ; a maze solution (currently only supports Dijkstra's algorithm)
+     :solution nil
+     :render-solution true}))

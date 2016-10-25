@@ -3,7 +3,8 @@
               [re-com.core :as re-com]
               [mazes.algorithms.sidewinder :as sidewinder]
               [mazes.grid :as grid]
-              [mazes.renderers.svg :as svg]
+              [mazes.renderers.svg.core :as svg]
+              [mazes.renderers.svg.dijkstra]
               [mazes.web.handlers :as handlers]))
 
 ; TODO: CSS for everything

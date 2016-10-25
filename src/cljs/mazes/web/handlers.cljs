@@ -1,6 +1,7 @@
 (ns mazes.web.handlers
     (:require [re-frame.core :as re-frame]
               [mazes.algorithms.sidewinder :as sidewinder]
+              [mazes.algorithms.dijkstra :as dijkstra]
               [mazes.grid :as grid]
               [mazes.web.db :as db]
               [com.rpl.specter :as s])
@@ -20,5 +21,6 @@
 (re-frame/reg-event-db
   :generate-maze
   (fn [{:keys [columns rows] :as db} [_ _]]
-    (let [maze (sidewinder/generate (grid/create-grid columns rows))]
-      (assoc db :grid maze))))
+    (let [maze (sidewinder/generate (grid/create-grid columns rows))
+          solution (dijkstra/solve maze (grid/find-cell maze 0 0) (grid/find-cell maze (dec columns) (dec rows)))]
+      (assoc db :grid maze :solution solution))))

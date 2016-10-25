@@ -17,8 +17,16 @@
   (let [has-distance (and (not (nil? distances)) (contains? distances cell))
         on-path (and (not (nil? path)) (some (partial = cell) (map first path)))
         render-env (merge render-env (when on-path path-highlight))
-        output (svg/render-cell render-env cell)]
+        output (svg/render-cell render-env cell)
+        {:keys [x y width height]} (svg/attributes (svg/find-rect output))]
     (if has-distance
-      (conj output [:text {:text-anchor "middle" :dominant-baseline "middle"}
-                    (get distances cell)])
+      (conj output [:text {:x (+ (/ width 2) x)
+                           :y (+ (/ height 2) y)
+                           :font-size (str (/ width 30) "em")
+                           :font-weight "bold"
+                           :text-anchor "middle" :dominant-baseline "middle"
+                           :fill "white"}
+                    (if (= infinite-distance (get distances cell))
+                      "-"
+                      (get distances cell))])
       output)))

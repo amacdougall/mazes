@@ -1,6 +1,6 @@
 (ns mazes.web.subs
     (:require [re-frame.core :as re-frame]
-              [mazes.renderers.svg :as svg])
+              [mazes.renderers.svg.core :as svg])
     (:require-macros [reagent.ratom :refer [reaction]]))
 
 (re-frame/reg-sub :columns (fn [db] (:columns db)))
@@ -19,6 +19,9 @@
   :svg-render-environment
   (fn [db]
     (when (:grid db)
-      (svg/render-environment
-        (:grid db)
-        (select-keys db (keys svg/default-render-environment-options))))))
+      (merge
+        (svg/render-environment
+          (:grid db)
+          (select-keys db (keys svg/default-render-environment-options)))
+        (when (:render-solution db)
+          {:annotations (merge (:solution db) {:type :dijkstra})})))))
