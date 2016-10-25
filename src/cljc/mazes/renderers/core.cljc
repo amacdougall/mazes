@@ -1,3 +1,3 @@
 (ns mazes.renderers.core)
 
-(defmulti render-cell (fn [env _] (:annotations env)))
+(defmulti render-cell (fn [env _] (:type (:annotations env))))

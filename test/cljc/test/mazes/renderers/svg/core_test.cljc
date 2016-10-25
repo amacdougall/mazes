@@ -4,7 +4,7 @@
             [clojure.spec.test :as stest]
             [hiccup.core :as hiccup]
             [mazes.grid :as g]
-            [mazes.renderers.core :refer [render-cell]]
+            [mazes.renderers.core :as r]
             [mazes.renderers.svg.core :refer :all]
             [test.mazes.helpers :refer [has-values? equal-numbers? ≈]]
             [com.rpl.specter :as s]
@@ -232,6 +232,8 @@
       (is (= (anchor-point start-room ::g/e) [x1 y1]))
       (is (= (anchor-point end-room ::g/w) [x2 y2])))))
 
+;; NOTE: test calls mazes.renderers.core/render-cell, which is a multimethod.
+;; The test specifically exercises the implementation provided by svg.core.
 (deftest test-render-cell
   (let [grid (g/create-grid 2 2)
         grid (g/link grid (g/find-cell grid 0 0) ::g/e)
@@ -242,7 +244,7 @@
         start-room (room-geometry render-env start-cell)
         end-cell (g/move grid start-cell ::g/e)
         end-room (room-geometry render-env end-cell)]
-    (let [g (render-cell render-env start-cell)]
+    (let [g (r/render-cell render-env start-cell)]
       (is (vector? g))
       (is (> (count g) 0))
       (is (= :g (first g)))
@@ -251,7 +253,7 @@
         (is (has-values? (room-geometry render-env start-cell) (last rect)))
         ; the two grid-links above should give this room two connections
         (is (= 2 (count lines)))))
-    (let [g (render-cell render-env end-cell)]
+    (let [g (r/render-cell render-env end-cell)]
       (let [rect (find-rect g)
             lines (find-lines g)]
         (is (has-values? (room-geometry render-env end-cell) (last rect)))

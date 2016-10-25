@@ -3,7 +3,7 @@
   produces Hiccup data; use the render-svg function to get an SVG string."
   (:require [mazes.grid :as g]
             [mazes.helpers :refer [deep-merge]]
-            [mazes.renderers.core :refer [render-cell]]
+            [mazes.renderers.core :as r]
             [clojure.spec :as spec]
             [com.rpl.specter :as s]
             #?(:clj [com.rpl.specter.macros :as sm :include-macros true]))
@@ -173,7 +173,7 @@
   :args (spec/cat :render-env map? :cell ::g/cell :direction ::g/direction)
   :ret vector?)
 
-(defmethod render-cell nil
+(defn render-cell
   [render-env cell]
   (into [:g (render-rect render-env cell)]
         (map (partial render-line render-env cell)
@@ -181,6 +181,10 @@
 ; TODO: spec multimethod?
 #_(spec/fdef render-cell
   :args (spec/cat :render-env map? :cell ::g/cell :existing-lines (spec/? set?)))
+
+(defmethod r/render-cell nil
+  [render-env cell]
+  (render-cell render-env cell))
 
 ; Specter helper functions for reading render-cell results
 (defn is-svg-tag? [tag]
