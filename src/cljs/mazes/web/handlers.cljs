@@ -1,6 +1,7 @@
 (ns mazes.web.handlers
     (:require [re-frame.core :as re-frame]
               [mazes.algorithms.sidewinder :as sidewinder]
+              [mazes.algorithms.aldous-broder :as aldous-broder]
               [mazes.algorithms.dijkstra :as d]
               [mazes.grid :as g]
               [mazes.web.db :as db]
@@ -21,7 +22,7 @@
 (re-frame/reg-event-db
   :generate-maze
   (fn [{:keys [columns rows] :as db} [_ _]]
-    (let [maze (sidewinder/generate (g/create-grid columns rows))]
+    (let [maze (aldous-broder/generate (g/create-grid columns rows))]
       (assoc db :grid maze :solution nil))))
 
 (re-frame/reg-event-db
@@ -57,12 +58,10 @@
 (re-frame/reg-event-db
   :solve-maze
   (fn [{grid :grid :as db} _]
-    (let [origin (g/find-cell grid 0 0)
-          destination (g/find-cell grid (dec (g/column-count grid)) (dec (g/row-count grid)))
-          distances (::d/distances (d/solve grid origin destination))
-          path (g/path-with-cells grid origin (d/path grid origin destination distances))]
-      (assoc db :solution {::d/distances distances
-                           ::d/path path}))))
+    (assoc db :solution (d/solve grid
+                                 (g/find-cell grid 0 0)
+                                 (g/find-cell grid (dec (g/column-count grid))
+                                              (dec (g/row-count grid)))))))
 
 (re-frame/reg-event-db
   :reset-solution

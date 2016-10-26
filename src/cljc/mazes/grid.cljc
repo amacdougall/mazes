@@ -128,6 +128,14 @@
   :args (spec/cat :grid ::grid :cell ::cell :direction ::direction)
   :ret (spec/nilable ::cell))
 
+(defn random-exit
+  "Given a grid and a cell, returns a random possible exit from the cell."
+  [grid cell]
+  (rand-nth (remove #(nil? (move grid cell %)) [::n ::e ::s ::w])))
+(spec/fdef random-exit
+  :args (spec/cat :grid ::grid :cell ::cell)
+  :ret ::direction)
+
 (defn next-cell
   "Given a grid and a cell, returns the next cell in the row, the first cell in
   the following row, or nil."
