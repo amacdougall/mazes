@@ -3,17 +3,19 @@
               [mazes.renderers.svg.core :as svg])
     (:require-macros [reagent.ratom :refer [reaction]]))
 
-(re-frame/reg-sub :columns (fn [db] (:columns db)))
-(re-frame/reg-sub :rows (fn [db] (:rows db)))
-(re-frame/reg-sub :width (fn [db] (:width db)))
-(re-frame/reg-sub :height (fn [db] (:height db)))
-(re-frame/reg-sub :size-spacing-ratio (fn [db] (:size-spacing-ratio db)))
-(re-frame/reg-sub :rect-attributes (fn [db] (:rect-attributes db)))
-(re-frame/reg-sub :line-attributes (fn [db] (:line-attributes db)))
+(def simple-subscriptions
+  [:columns
+   :rows
+   :width
+   :height
+   :size-spacing-ratio
+   :rect-attributes
+   :line-attributes
+   :selected-controls-tab
+   :grid])
 
-(re-frame/reg-sub :selected-controls-tab (fn [db] (:selected-controls-tab db)))
-
-(re-frame/reg-sub :grid (fn [db] (:grid db)))
+(doseq [k simple-subscriptions]
+  (re-frame/reg-sub k (fn [db] (k db))))
 
 ; Returns a valid SVG render environment based on the current db state; or nil,
 ; if no grid exists in the db yet. If the solution should be rendered, adds a
