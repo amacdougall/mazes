@@ -12,16 +12,27 @@
 (def path-highlight
   {:rect-attributes {:fill "green", :stroke "green"}})
 
+(def current-highlight
+  {:rect-attributes {:fill "blue", :stroke "blue"}})
+
+(def unvisited-highlight
+  {:rect-attributes {:fill "gray", :stroke "gray"}})
+
 ;; NOTE: this expects a render-env whose (-> env :annotations :path) is a
 ;; sequence of [::g/cell ::g/direction] pairs. Until dijkstra/solve work is
 ;; complete, we must construct this path ourselves when building the render
 ;; environment; or more accurately, when constructing the :solution value in
 ;; the re-frame app-db.
 (defmethod render-cell :dijkstra
-  [{{distances ::d/distances, path ::d/path} :annotations :as render-env} cell]
+  [{{:keys [::d/distances ::d/path ::d/current ::d/unvisited]} :annotations :as render-env} cell]
   (let [has-distance (and (not (nil? distances)) (contains? distances cell))
+        is-current (= cell current)
+        is-unvisited (contains? unvisited cell)
         on-path (and (not (nil? path)) (some (partial = cell) (map first path)))
-        render-env (merge render-env (when on-path path-highlight))
+        render-env (merge render-env
+                          (when is-unvisited unvisited-highlight)
+                          (when is-current current-highlight)
+                          (when on-path path-highlight))
         output (svg/render-cell render-env cell)
         {:keys [x y width height]} (svg/attributes (svg/find-rect output))]
     (if has-distance
