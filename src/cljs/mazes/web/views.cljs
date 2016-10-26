@@ -19,7 +19,7 @@
 ;; Given a keypath such as [:top] or [:top :node :leaf], returns a slider which
 ;; alters this value. Real-world example: [:columns], which is at the top level
 ;; of the app db; [:rect-attributes :fill], which is one level down.
-(defn slider [ks {:keys [label min max]}]
+(defn slider [ks {:keys [label min max step]}]
   (let [value (subscribe [(first ks)])
         target-value (fn [top] (get-in top (rest ks)))]
     (fn []
@@ -32,6 +32,7 @@
          :model (target-value @value)
          :min min
          :max max
+         :step (or step 1)
          :on-change #(dispatch [:update ks %])]]])))
 
 ;; Perhaps the definition of slider could be expanded to accomodate this
@@ -81,8 +82,8 @@
    :gap "2.0rem"
    :children
    [[:h3 "Geometry"]
-    [slider [:width] {:label "Width" :min 100 :max 1000}]
-    [slider [:height] {:label "Height" :min 100 :max 1000}]
+    [slider [:width] {:label "Width" :min 100 :max 1000 :step 10}]
+    [slider [:height] {:label "Height" :min 100 :max 1000 :step 10}]
     [size-spacing-ratio-slider {:label "Size/Spacing Ratio" :min 25 :max 75}]
     [:h3 "Lines"]
     [slider [:line-attributes :stroke-width] {:label "Thickness" :min 1 :max 100}]
