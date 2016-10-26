@@ -19,6 +19,8 @@
   {:dev
    {:dependencies [[org.clojure/test.check "0.9.0"]
                    [org.clojure/algo.generic "0.1.2"]
+                   [figwheel-sidecar "0.5.4-3"]
+                   [com.cemerick/piggieback "0.2.1"]
                    [binaryage/devtools "0.6.1"]]
     :source-paths ["test/clj", "test/cljc"]
     :plugins [[com.jakemccrary/lein-test-refresh "0.10.0"]
