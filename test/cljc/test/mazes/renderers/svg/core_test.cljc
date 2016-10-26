@@ -244,22 +244,15 @@
         start-room (room-geometry render-env start-cell)
         end-cell (g/move grid start-cell ::g/e)
         end-room (room-geometry render-env end-cell)]
-    (let [g (r/render-cell render-env start-cell)]
-      (is (vector? g))
-      (is (> (count g) 0))
-      (is (= :g (first g)))
-      (let [rect (find-rect g)
-            lines (find-lines g)]
-        (is (has-values? (room-geometry render-env start-cell) (last rect)))
-        ; the two grid-links above should give this room two connections
-        (is (= 2 (count lines)))))
-    (let [g (r/render-cell render-env end-cell)]
-      (let [rect (find-rect g)
-            lines (find-lines g)]
-        (is (has-values? (room-geometry render-env end-cell) (last rect)))
-        ; this room should have a line only going south; previous room will have
-        ; accounted for the east-west line
-        (is (= 1 (count lines)))))))
+    (let [{:keys [rect lines]} (r/render-cell render-env start-cell)]
+      (is (has-values? (room-geometry render-env start-cell) (attributes rect)))
+      ; the two grid-links above should give this room two connections
+      (is (= 2 (count lines))))
+    (let [{:keys [rect lines]} (r/render-cell render-env end-cell)]
+      (is (has-values? (room-geometry render-env end-cell) (attributes rect)))
+      ; this room should have a line only going south; previous room will have
+      ; accounted for the east-west line
+      (is (= 1 (count lines))))))
 
 (deftest test-render
   (let [grid (g/create-grid 2 2)
@@ -270,8 +263,8 @@
             output (render render-env grid)]
         (is (vector? output))
         (is (= :svg (first output)))
-        (is (= 4 (count (sm/select [s/ALL vector?] output)))
-            "Four cell groups should be rendered.")
+        (is (= 3 (count (sm/select [s/ALL vector?] output)))
+            "Three element layers should be rendered.")
         (let [lines (sm/select
                       [s/ALL (is-svg-tag? :g) s/ALL (is-svg-tag? :line)]
                       output)]
@@ -285,8 +278,8 @@
             output (render render-env grid)]
         (is (vector? output))
         (is (= :svg (first output)))
-        (is (= 4 (count (sm/select [s/ALL vector?] output)))
-            "Four cell groups should be rendered.")
+        (is (= 3 (count (sm/select [s/ALL vector?] output)))
+            "Three element layers should be rendered.")
         (let [lines (sm/select
                       [s/ALL (is-svg-tag? :g) s/ALL (is-svg-tag? :line)]
                       output)]

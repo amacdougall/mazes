@@ -34,15 +34,15 @@
                           (when is-current current-highlight)
                           (when on-path path-highlight))
         output (svg/render-cell render-env cell)
-        {:keys [x y width height]} (svg/attributes (svg/find-rect output))]
+        {:keys [x y width height]} (svg/attributes (:rect output))]
     (if has-distance
-      (conj output [:text {:x (+ (/ width 2) x)
-                           :y (+ (/ height 2) y)
-                           :font-size (str (/ width 30) "em")
-                           :font-weight "bold"
-                           :text-anchor "middle" :dominant-baseline "middle"
-                           :fill "white"}
-                    (if (= infinite-distance (get distances cell))
-                      "-"
-                      (get distances cell))])
+      (assoc output :text [:text {:x (+ (/ width 2) x)
+                                  :y (+ (/ height 2) y)
+                                  :font-size (str (/ width 30) "em")
+                                  :font-weight "bold"
+                                  :text-anchor "middle" :dominant-baseline "middle"
+                                  :fill "white"}
+                           (if (= infinite-distance (get distances cell))
+                             "-"
+                             (get distances cell))])
       output)))

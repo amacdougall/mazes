@@ -23,11 +23,9 @@
         render-env (merge (svg/render-environment grid) annotations)]
     ;; first, duplicate the svg.core_test version to make sure we didn't break anything
     ;; now test the distance text
-    (let [g (r/render-cell render-env origin)
-          text (svg/find-text g)]
+    (let [{text :text} (r/render-cell render-env origin)]
       (is (not (nil? text)))
       (is (= (get (::d/distances solution) origin) (last text))))
-    (let [g (r/render-cell render-env destination)
-          text (svg/find-text g)]
+    (let [{text :text} (r/render-cell render-env destination)]
       (is (not (nil? text)))
       (is (= (get (::d/distances solution) destination) (last text))))))

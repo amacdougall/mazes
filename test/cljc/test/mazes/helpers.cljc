@@ -1,4 +1,5 @@
-(ns test.mazes.helpers)
+(ns test.mazes.helpers
+  (:require [clojure.algo.generic.math-functions :refer [approx=]]))
 
 (defn has-values?
   "True if the candidate map has every key-value pair defined in the exemplar map."
@@ -15,5 +16,5 @@
 ;; an int, and when division is involved, we find that this kind of check fails:
 ;; (== 2.0 1.9999999999999999999999) ...in defiance of our intent.
 (defn ≈ [a b]
-  (clojure.algo.generic.math-functions/approx= a b 1e-2))
+  (approx= a b 1e-2))
 

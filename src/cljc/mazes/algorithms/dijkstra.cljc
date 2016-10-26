@@ -96,7 +96,6 @@
                      (fn [distances unvisited]
                        (not (contains? unvisited destination))))]
      (loop [{:keys [::distances ::unvisited] :as values} (get-initial-values grid origin)]
-       ; (clojure.pprint/pprint values)
        (if (complete? distances unvisited)
          {::distances distances}
          (recur (step values)))))))

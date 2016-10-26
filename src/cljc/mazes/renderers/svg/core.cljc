@@ -175,12 +175,9 @@
 
 (defn render-cell
   [render-env cell]
-  (into [:g (render-rect render-env cell)]
-        (map (partial render-line render-env cell)
-             (filter #{::g/ne ::g/e ::g/se ::g/s} (::g/exits cell)))))
-; TODO: spec multimethod?
-(spec/fdef render-cell
-  :args (spec/cat :render-env map? :cell ::g/cell :existing-lines (spec/? set?)))
+  {:rect (render-rect render-env cell)
+   :lines (mapv (partial render-line render-env cell)
+                (filter #{::g/ne ::g/e ::g/se ::g/s} (::g/exits cell)))})
 
 (defmethod r/render-cell nil
   [render-env cell]
@@ -203,6 +200,8 @@
   "Given a render environment and a grid, returns an SVG rendering as Hiccup
   data structures. All numeric values are in user units."
   [render-env grid]
-  (into (svg render-env)
-        (map (partial r/render-cell render-env)
-             (g/all-cells grid))))
+  (let [cells (map (partial r/render-cell render-env) (g/all-cells grid))]
+    (into (svg render-env)
+          [(into [:g] (apply concat (mapv :lines cells))) ; single-level flatten
+           (into [:g] (map :rect cells))
+           (into [:g] (map :text cells))])))
