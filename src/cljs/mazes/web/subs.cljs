@@ -12,7 +12,9 @@
    :rect-attributes
    :line-attributes
    :selected-controls-tab
-   :grid])
+   :grid
+   :solution
+   :render-solution])
 
 (doseq [k simple-subscriptions]
   (re-frame/reg-sub k (fn [db] (k db))))
@@ -28,5 +30,5 @@
         (svg/render-environment
           (:grid db)
           (select-keys db (keys svg/default-render-environment-options)))
-        (when (:render-solution db)
+        (when (and (:solution db) (:render-solution db))
           {:annotations (merge (:solution db) {:type :dijkstra})})))))

@@ -143,7 +143,12 @@
         ; add a dead end
         grid (g/link-path grid (g/find-cell grid 1 0) [::g/e ::g/s ::g/e ::g/n])
         origin (g/find-cell grid 0 0)
-        destination (g/find-cell grid 3 3)
-        solved-path (d/path grid origin destination)]
-    (is (= path solved-path))))
+        destination (g/find-cell grid 3 3)]
+    (testing "without distance map"
+      (let [solved-path (d/path grid origin destination)]
+        (is (= path solved-path))))
+    (testing "with distance map"
+      (let [distances (:distances (d/solve grid origin destination))
+            solved-path (d/path grid origin destination distances)]
+        (is (= path solved-path))))))
 

@@ -21,6 +21,22 @@
 (re-frame/reg-event-db
   :generate-maze
   (fn [{:keys [columns rows] :as db} [_ _]]
-    (let [maze (sidewinder/generate (grid/create-grid columns rows))
-          solution (dijkstra/solve maze (grid/find-cell maze 0 0) (grid/find-cell maze (dec columns) (dec rows)))]
-      (assoc db :grid maze :solution solution))))
+    (let [maze (sidewinder/generate (g/create-grid columns rows))]
+      (assoc db :grid maze :solution nil))))
+
+(re-frame/reg-event-db
+  :solve-maze
+  (fn [{grid :grid :as db} _]
+    (let [origin (g/find-cell grid 0 0)
+          destination (g/find-cell grid (dec (g/column-count grid)) (dec (g/row-count grid)))
+          distances (:distances (d/solve grid origin destination))
+          path (d/path grid origin destination distances)
+          cells-on-path (g/cells-on-path grid origin path)
+          path (partition 2 (interleave cells-on-path path))]
+      (assoc db :solution {:distances distances
+                           :path path}))))
+
+(re-frame/reg-event-db
+  :reset-solution
+  (fn [db _]
+    (assoc db :solution nil)))

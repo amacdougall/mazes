@@ -12,6 +12,11 @@
 (def path-highlight
   {:rect-attributes {:fill "green", :stroke "green"}})
 
+;; NOTE: this expects a render-env whose (-> env :annotations :path) is a
+;; sequence of [::g/cell ::g/direction] pairs. Until dijkstra/solve work is
+;; complete, we must construct this path ourselves when building the render
+;; environment; or more accurately, when constructing the :solution value in
+;; the re-frame app-db.
 (defmethod render-cell :dijkstra
   [{{distances :distances, path :path} :annotations :as render-env} cell]
   (let [has-distance (and (not (nil? distances)) (contains? distances cell))

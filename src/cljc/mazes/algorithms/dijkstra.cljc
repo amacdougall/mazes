@@ -76,7 +76,7 @@
   distance for the destination cell, but may not have distances for any other
   cells.
 
-  :path - a sequence of [cell direction] pairs, representing the cells along
+  TODO :path - a sequence of [cell direction] pairs, representing the cells along
   the solution path, and the directions to move to follow the path.
 
   In either case, the distance map may contain unreachable cells. Check for the

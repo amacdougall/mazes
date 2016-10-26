@@ -11,7 +11,13 @@
      :grid nil
      ; maze generation algorithm (always sidewinder right now)
      :algorithm :sidewinder
-     ; a maze solution (currently only supports Dijkstra's algorithm)
+     ; a complete or partial maze solution (currently only supports Dijkstra's algorithm),
+     ; containing the following possible keys:
+     ;   :path - A sequence of directions from the origin to the destination.
+     ;   :distances - A map of {<cell> <int>, ...}.
+     ;   :grid - The grid upon which to operate.
+     ;   :unvisited - A set of unvisited cells.
+     ;   :current - The current cell being considered by the algorithm.
      :solution nil
      :render-solution true
      ; we're throwing some ui state in here so it survives past Figwheel refreshes

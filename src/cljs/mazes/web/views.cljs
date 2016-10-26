@@ -98,8 +98,13 @@
   [re-com/v-box
    :gap "2.0rem"
    :children
-   [[:h3 "Coming soon"]
-    ]
+   [[:h3 "Solution"]
+    [re-com/button
+     :label "Solve"
+     :on-click #(dispatch [:solve-maze])]
+    [re-com/button
+     :label "Reset"
+     :on-click #(dispatch [:reset-solution])]]
    ])
 
 (defn controls []
