@@ -1,8 +1,8 @@
 (ns mazes.web.handlers
     (:require [re-frame.core :as re-frame]
               [mazes.algorithms.sidewinder :as sidewinder]
-              [mazes.algorithms.dijkstra :as dijkstra]
-              [mazes.grid :as grid]
+              [mazes.algorithms.dijkstra :as d]
+              [mazes.grid :as g]
               [mazes.web.db :as db]
               [com.rpl.specter :as s])
     (:require-macros [com.rpl.specter.macros :as sm]))

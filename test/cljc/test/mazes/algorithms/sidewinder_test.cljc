@@ -2,12 +2,12 @@
   (:require [clojure.test :refer :all]
             [clojure.spec :as spec]
             [clojure.spec.test :as stest]
-            [mazes.grid :as grid]
+            [mazes.grid :as g]
             [mazes.algorithms.sidewinder :as sidewinder]))
 
 (stest/instrument)
 
 (deftest test-generate
-  (let [grid (grid/create-grid 3 3)
+  (let [grid (g/create-grid 3 3)
         maze (sidewinder/generate grid)]
-    (is (spec/valid? ::grid/grid maze))))
+    (is (spec/valid? ::g/grid maze))))

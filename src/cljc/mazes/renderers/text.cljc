@@ -1,6 +1,6 @@
 (ns mazes.renderers.text
   "Renderer which generates simple ASCII art for maze grids."
-  (:require [mazes.grid :as grid]))
+  (:require [mazes.grid :as g]))
 
 (def body-east-open "    ")
 (def body-east-wall "   |")
@@ -8,8 +8,8 @@
 (def bottom-south-wall "---+")
 
 (defn render-cell [cell]
-  {:body (if (grid/has-exit? cell ::grid/e) body-east-open body-east-wall)
-   :bottom (if (grid/has-exit? cell ::grid/s) bottom-south-open bottom-south-wall)})
+  {:body (if (g/has-exit? cell ::g/e) body-east-open body-east-wall)
+   :bottom (if (g/has-exit? cell ::g/s) bottom-south-open bottom-south-wall)})
 
 (defn render-row [result row]
   (let [cell-results (map render-cell row)]
