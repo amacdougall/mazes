@@ -11,10 +11,13 @@
 (re-frame/reg-sub :rect-attributes (fn [db] (:rect-attributes db)))
 (re-frame/reg-sub :line-attributes (fn [db] (:line-attributes db)))
 
+(re-frame/reg-sub :selected-controls-tab (fn [db] (:selected-controls-tab db)))
+
 (re-frame/reg-sub :grid (fn [db] (:grid db)))
 
 ; Returns a valid SVG render environment based on the current db state; or nil,
-; if no grid exists in the db yet.
+; if no grid exists in the db yet. If the solution should be rendered, adds a
+; Dijkstra annotation.
 (re-frame/reg-sub
   :svg-render-environment
   (fn [db]

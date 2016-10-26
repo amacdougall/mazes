@@ -13,4 +13,6 @@
      :algorithm :sidewinder
      ; a maze solution (currently only supports Dijkstra's algorithm)
      :solution nil
-     :render-solution true}))
+     :render-solution true
+     ; we're throwing some ui state in here so it survives past Figwheel refreshes
+     :selected-controls-tab :maze}))

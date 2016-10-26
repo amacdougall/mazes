@@ -63,10 +63,62 @@
          :model (target-value @value)
          :on-change #(dispatch [:update ks %])
          ]
-        ]]
-      )
-    )
+        ]])))
+
+(defn maze-controls []
+  [re-com/v-box
+   :gap "2.0rem"
+   :children
+   [[:h3 "Maze"]
+    [slider [:columns] {:label "Columns" :min 2 :max 20}]
+    [slider [:rows] {:label "Rows" :min 2 :max 20}]
+    [re-com/button
+     :label "Generate Maze"
+     :on-click #(dispatch [:generate-maze])]]])
+
+(defn layout-controls []
+  [re-com/v-box
+   :gap "2.0rem"
+   :children
+   [[:h3 "Geometry"]
+    [slider [:width] {:label "Width" :min 100 :max 1000}]
+    [slider [:height] {:label "Height" :min 100 :max 1000}]
+    [size-spacing-ratio-slider {:label "Size/Spacing Ratio" :min 25 :max 75}]
+    [:h3 "Lines"]
+    [slider [:line-attributes :stroke-width] {:label "Thickness" :min 1 :max 100}]
+    [color [:line-attributes :stroke] {:label "Color"}]
+    [:h3 "Rooms"]
+    [slider [:rect-attributes :stroke-width] {:label "Stroke Thickness" :min 1 :max 100}]
+    [color [:rect-attributes :stroke] {:label "Stroke Color"}]
+    [color [:rect-attributes :fill] {:label "Fill Color"}]]]
   )
+
+(defn solution-controls []
+  [re-com/v-box
+   :gap "2.0rem"
+   :children
+   [[:h3 "Coming soon"]
+    ]
+   ])
+
+(defn controls []
+  (let [selected-tab (subscribe [:selected-controls-tab])
+        tab-definitions [{:id :maze :label "Maze"}
+                         {:id :layout :label "Layout"}
+                         {:id :solution :label "Solution"}]
+        change-tab #(dispatch [:update [:selected-controls-tab] %])]
+    (fn []
+      [re-com/v-box
+       :gap "2.0rem"
+       :children
+       [[re-com/horizontal-tabs
+         :tabs tab-definitions
+         :model selected-tab
+         :on-change change-tab]
+        [(condp = @selected-tab
+           :maze maze-controls
+           :layout layout-controls
+           :solution solution-controls)]]])))
 
 (def rounded-panel
   (merge {:background-color "white"
@@ -92,24 +144,7 @@
                        :overflow "auto"})
         :gap "2rem"
         :children
-        [[:h2 "Left Pane"]
-         [:h3 "Geometry"]
-         [slider [:columns] {:label "Columns" :min 2 :max 20}]
-         [slider [:rows] {:label "Rows" :min 2 :max 20}]
-         [slider [:width] {:label "Width" :min 100 :max 1000}]
-         [slider [:height] {:label "Height" :min 100 :max 1000}]
-         [size-spacing-ratio-slider {:label "Size/Spacing Ratio" :min 25 :max 75}]
-         [:h3 "Lines"]
-         [slider [:line-attributes :stroke-width] {:label "Thickness" :min 1 :max 100}]
-         [color [:line-attributes :stroke] {:label "Color"}]
-         [:h3 "Rooms"]
-         [slider [:rect-attributes :stroke-width] {:label "Stroke Thickness" :min 1 :max 100}]
-         [color [:rect-attributes :stroke] {:label "Stroke Color"}]
-         [color [:rect-attributes :fill] {:label "Fill Color"}]
-         [re-com/button
-          :label "Generate Maze"
-          :on-click #(dispatch [:generate-maze])]
-         ]]
+        [[controls]]]
        :panel-2
        [:div {:style (merge rounded-panel
                             {:width "100%"
