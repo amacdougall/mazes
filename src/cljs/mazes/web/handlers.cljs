@@ -30,6 +30,13 @@
       (assoc db :grid maze :solution nil))))
 
 (re-frame/reg-event-db
+  :add-random-link
+  (fn [{grid :grid :as db} _]
+    (let [cell (g/random-cell grid)
+          directions (remove (::g/exits cell) [::g/n ::g/ne ::g/e ::g/se ::g/s ::g/sw ::g/w ::g/nw])]
+      (assoc db :grid (g/link grid cell (rand-nth directions))))))
+
+(re-frame/reg-event-db
   :step-solution
   (fn [{:keys [grid solution] :as db} _]
     (let [origin (g/find-cell grid 0 0)

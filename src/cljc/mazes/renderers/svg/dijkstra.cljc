@@ -10,10 +10,10 @@
        (> infinite-distance (get distances cell))))
 
 (def path-highlight
-  {:rect-attributes {:fill "green", :stroke "green"}})
+  {:rect-attributes {:fill "forestgreen", :stroke "forestgreen"}})
 
 (def current-highlight
-  {:rect-attributes {:fill "blue", :stroke "blue"}})
+  {:rect-attributes {:fill "cadetblue", :stroke "cadetblue"}})
 
 (def unvisited-highlight
   {:rect-attributes {:fill "gray", :stroke "gray"}})

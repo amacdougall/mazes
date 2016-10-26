@@ -75,7 +75,10 @@
     [slider [:rows] {:label "Rows" :min 2 :max 20}]
     [re-com/button
      :label "Generate Maze"
-     :on-click #(dispatch [:generate-maze])]]])
+     :on-click #(dispatch [:generate-maze])]
+    [re-com/button
+     :label "Add Random Link"
+     :on-click #(dispatch [:add-random-link])]]])
 
 (defn layout-controls []
   [re-com/v-box
@@ -99,15 +102,27 @@
    :gap "2.0rem"
    :children
    [[:h3 "Solution"]
-    [re-com/button
-     :label "Step"
-     :on-click #(dispatch [:step-solution])]
-    [re-com/button
-     :label "Solve"
-     :on-click #(dispatch [:solve-maze])]
-    [re-com/button
-     :label "Reset"
-     :on-click #(dispatch [:reset-solution])]]])
+    [re-com/h-box
+     :gap "2.0rem"
+     :children
+     [[re-com/button
+       :label "Step"
+       :style {:font-weight "bold"
+               :color "white"
+               :background-color "cadetblue"}
+       :on-click #(dispatch [:step-solution])]
+      [re-com/button
+       :label "Solve"
+       :style {:font-weight "bold"
+               :color "white"
+               :background-color "forestgreen"}
+       :on-click #(dispatch [:solve-maze])]
+      [re-com/button
+       :label "Reset"
+       :style {:font-weight "bold"
+               :color "white"
+               :background-color "firebrick"}
+       :on-click #(dispatch [:reset-solution])]]]]])
 
 (defn controls []
   (let [selected-tab (subscribe [:selected-controls-tab])
