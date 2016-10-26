@@ -104,7 +104,7 @@
       (testing "with unreachable cells"
         (let [origin (g/find-cell maze 0 0)
               destination (g/find-cell maze 3 3) ; bottom right
-              distances (:distances (d/solve maze origin destination))]
+              distances (::d/distances (d/solve maze origin destination))]
           (is (= 3 (count (unreachable distances)))
               "three cells should have been unreachable")
           (is (= infinite-distance (get distances (g/find-cell maze 0 3)))
@@ -114,24 +114,24 @@
         ; fill in the gaps
         (let [origin (g/find-cell p-maze 0 0)
               destination (g/find-cell p-maze 3 3)
-              distances (:distances (d/solve p-maze origin destination))]
+              distances (::d/distances (d/solve p-maze origin destination))]
           (is (empty? (unreachable distances)))
           (is (= 8 (get distances destination)))))
       (testing "with a target destination that leaves cells unexplored"
         (let [origin (g/find-cell p-maze 0 0)
               destination (g/find-cell p-maze 2 2)
-              distances (:distances (d/solve grid origin destination))]
+              distances (::d/distances (d/solve grid origin destination))]
           (is (= infinite-distance (get distances (g/find-cell grid 0 3)))
               "cell beyond the destination should be unvisited")
           (is (= 6 (get distances destination))))))
     (testing "with no target destination"
       (let [origin (g/find-cell maze 1 1)
-            distances (:distances (d/solve maze origin))]
+            distances (::d/distances (d/solve maze origin))]
         (is (= 3 (count (unreachable distances))))
         (is (= 0 (get distances origin)))
         (is (= 1 (get distances (g/move maze origin ::g/n)))))
       (let [origin (g/find-cell p-maze 1 1)
-            distances (:distances (d/solve p-maze origin))]
+            distances (::d/distances (d/solve p-maze origin))]
         (is (empty? (unreachable distances)))))))
 
 ; A single test should be sufficient: all logic except the distances->path
@@ -143,12 +143,22 @@
         ; add a dead end
         grid (g/link-path grid (g/find-cell grid 1 0) [::g/e ::g/s ::g/e ::g/n])
         origin (g/find-cell grid 0 0)
-        destination (g/find-cell grid 3 3)]
+        destination (g/find-cell grid 3 3)
+        expected-cells (g/cells-on-path grid origin path)]
     (testing "without distance map"
-      (let [solved-path (d/path grid origin destination)]
-        (is (= path solved-path))))
+      (let [solved-path (d/path grid origin destination)
+            actual-cells (g/cells-on-path grid origin solved-path)]
+        (is (= path solved-path))
+        (is (= expected-cells actual-cells))
+        (is (= origin (first actual-cells)))
+        (is (= destination (last actual-cells)))
+        ))
     (testing "with distance map"
-      (let [distances (:distances (d/solve grid origin destination))
-            solved-path (d/path grid origin destination distances)]
-        (is (= path solved-path))))))
+      (let [distances (::d/distances (d/solve grid origin destination))
+            solved-path (d/path grid origin destination distances)
+            actual-cells (g/cells-on-path grid origin solved-path)]
+        (is (= path solved-path))
+        (is (= expected-cells actual-cells))
+        (is (= origin (first actual-cells)))
+        (is (= destination (last actual-cells)))))))
 

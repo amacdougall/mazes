@@ -63,8 +63,8 @@
         [re-com/input-text
          :model (target-value @value)
          :on-change #(dispatch [:update ks %])
-         ]
-        ]])))
+         :width "200px"
+         ]]])))
 
 (defn maze-controls []
   [re-com/v-box
@@ -100,12 +100,14 @@
    :children
    [[:h3 "Solution"]
     [re-com/button
+     :label "Step"
+     :on-click #(dispatch [:step-solution])]
+    [re-com/button
      :label "Solve"
      :on-click #(dispatch [:solve-maze])]
     [re-com/button
      :label "Reset"
-     :on-click #(dispatch [:reset-solution])]]
-   ])
+     :on-click #(dispatch [:reset-solution])]]])
 
 (defn controls []
   (let [selected-tab (subscribe [:selected-controls-tab])
@@ -142,7 +144,7 @@
      [[re-com/title :label "Mazes", :level :level1]
       [re-com/h-split
        :width "100%"
-       :initial-split "30%"
+       :initial-split "25%"
        :panel-1
        [re-com/v-box
         :style (merge rounded-panel
@@ -155,5 +157,4 @@
        [:div {:style (merge rounded-panel
                             {:width "100%"
                              :margin-right "20px"})}
-        [maze-svg]]
-       ]]]))
+        [maze-svg]]]]]))

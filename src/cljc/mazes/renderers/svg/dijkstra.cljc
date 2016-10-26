@@ -1,7 +1,7 @@
 (ns mazes.renderers.svg.dijkstra
   "Provides an implementation of mazes.renderers.core/render-cell which applies
   additional formatting for solutions to Dijkstra's Algorithm."
-  (:require [mazes.algorithms.dijkstra :refer [infinite-distance]]
+  (:require [mazes.algorithms.dijkstra :refer [infinite-distance] :as d]
             [mazes.renderers.core :refer [render-cell]]
             [mazes.renderers.svg.core :as svg]))
 
@@ -18,7 +18,7 @@
 ;; environment; or more accurately, when constructing the :solution value in
 ;; the re-frame app-db.
 (defmethod render-cell :dijkstra
-  [{{distances :distances, path :path} :annotations :as render-env} cell]
+  [{{distances ::d/distances, path ::d/path} :annotations :as render-env} cell]
   (let [has-distance (and (not (nil? distances)) (contains? distances cell))
         on-path (and (not (nil? path)) (some (partial = cell) (map first path)))
         render-env (merge render-env (when on-path path-highlight))

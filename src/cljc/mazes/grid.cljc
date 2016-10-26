@@ -180,7 +180,7 @@
    (cells-on-path grid cell path []))
   ([grid cell path result]
    (if (empty? path)
-     (vec result)
+     (vec (conj result cell)) ; add current cell and return
      (recur grid
             (move grid cell (first path))
             (rest path)

@@ -26,8 +26,8 @@
     (let [g (r/render-cell render-env origin)
           text (svg/find-text g)]
       (is (not (nil? text)))
-      (is (= (get (:distances solution) origin) (last text))))
+      (is (= (get (::d/distances solution) origin) (last text))))
     (let [g (r/render-cell render-env destination)
           text (svg/find-text g)]
       (is (not (nil? text)))
-      (is (= (get (:distances solution) destination) (last text))))))
+      (is (= (get (::d/distances solution) destination) (last text))))))

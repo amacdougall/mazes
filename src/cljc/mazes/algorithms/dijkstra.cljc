@@ -98,7 +98,7 @@
      (loop [{:keys [::distances ::unvisited] :as values} (get-initial-values grid origin)]
        ; (clojure.pprint/pprint values)
        (if (complete? distances unvisited)
-         {:distances distances}
+         {::distances distances}
          (recur (step values)))))))
 (spec/fdef solve
   :args (spec/cat :grid ::g/grid :origin ::g/cell :destination (spec/? (spec/nilable ::g/cell)))
@@ -113,7 +113,7 @@
   then build a path without running the algorithm twice. If a distance map is
   not provided, this function runs Dijkstra's Algorithm on its own account."
   ([grid origin destination]
-   (path grid origin destination (:distances (solve grid origin destination))))
+   (path grid origin destination (::distances (solve grid origin destination))))
   ([grid origin destination distances]
    (loop [cell destination, path []]
      (if (= cell origin)

@@ -80,7 +80,8 @@
         result (cells-on-path grid (find-cell grid 0 0) path)]
     (is (= [(find-cell grid 0 0)
             (find-cell grid 1 0)
-            (find-cell grid 1 1)]
+            (find-cell grid 1 1)
+            (find-cell grid 0 1)]
            result))))
 
 (deftest test-linked-cells
