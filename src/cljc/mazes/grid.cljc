@@ -73,10 +73,28 @@
   :args (spec/cat :grid ::grid :x ::x :y ::y)
   :ret (spec/nilable ::cell))
 
+(defn column-count
+  "Given a grid, returns the number of columns in the grid."
+  [grid]
+  (count (first grid)))
+(spec/fdef column-count
+           :args (spec/cat :grid ::grid)
+           :ret int?)
+
+(defn row-count
+  "Given a grid, returns the number of rows in the grid."
+  [grid]
+  (count grid))
+(spec/fdef row-count
+           :args (spec/cat :grid ::grid)
+           :ret int?)
+
 (defn random-cell
   "Given a grid, returns a random cell."
   [grid]
-  (find-cell grid (rand-int (count grid)) (rand-int (count (first grid)))))
+  (find-cell grid
+             (rand-int (column-count grid))
+             (rand-int (row-count grid))))
 (spec/fdef random-cell
   :args (spec/cat :grid ::grid)
   :ret ::cell)
@@ -188,19 +206,3 @@
 (spec/fdef cells-on-path
   :args (spec/cat :grid ::grid :cell ::cell :path (spec/coll-of ::direction)
                   :result (spec/? (spec/coll-of ::cell))))
-
-(defn column-count
-  "Given a grid, returns the number of columns in the grid."
-  [grid]
-  (count (first grid)))
-(spec/fdef column-count
-  :args (spec/cat :grid ::grid)
-  :ret int?)
-
-(defn row-count
-  "Given a grid, returns the number of rows in the grid."
-  [grid]
-  (count grid))
-(spec/fdef row-count
-  :args (spec/cat :grid ::grid)
-  :ret int?)
