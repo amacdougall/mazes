@@ -78,7 +78,8 @@
      :on-click #(dispatch [:generate-maze])]
     [re-com/button
      :label "Add Random Link"
-     :on-click #(dispatch [:add-random-link])]]])
+     :on-click #(dispatch [:add-random-link])]
+    ]])
 
 (defn layout-controls []
   [re-com/v-box

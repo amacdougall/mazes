@@ -123,7 +123,15 @@
               distances (::d/distances (d/solve grid origin destination))]
           (is (= infinite-distance (get distances (g/find-cell grid 0 3)))
               "cell beyond the destination should be unvisited")
-          (is (= 6 (get distances destination))))))
+          (is (= 6 (get distances destination)))))
+      (testing "when destination cell is unreachable"
+        (let [origin (g/find-cell grid 0 0)
+              destination (g/find-cell grid 0 3) ; should be unreachable
+              solution (d/solve maze origin destination)
+              distances (::d/distances solution)
+              path (::d/path solution)]
+          (is (= infinite-distance (get distances destination)))
+          (is (nil? path)))))
     (testing "with no target destination"
       (let [origin (g/find-cell maze 1 1)
             distances (::d/distances (d/solve maze origin))]
@@ -131,8 +139,11 @@
         (is (= 0 (get distances origin)))
         (is (= 1 (get distances (g/move maze origin ::g/n)))))
       (let [origin (g/find-cell p-maze 1 1)
-            distances (::d/distances (d/solve p-maze origin))]
-        (is (empty? (unreachable distances)))))))
+            solution (d/solve p-maze origin)
+            distances (::d/distances solution)
+            path (::d/path solution)]
+        (is (empty? (unreachable distances)))
+        (is (nil? path))))))
 
 ; A single test should be sufficient: all logic except the distances->path
 ; translation is covered by the dijkstra/solve tests.
@@ -145,20 +156,14 @@
         origin (g/find-cell grid 0 0)
         destination (g/find-cell grid 3 3)
         expected-cells (g/cells-on-path grid origin path)]
-    (testing "without distance map"
-      (let [solved-path (d/path grid origin destination)
-            actual-cells (g/cells-on-path grid origin solved-path)]
-        (is (= path solved-path))
-        (is (= expected-cells actual-cells))
-        (is (= origin (first actual-cells)))
-        (is (= destination (last actual-cells)))
-        ))
-    (testing "with distance map"
-      (let [distances (::d/distances (d/solve grid origin destination))
-            solved-path (d/path grid origin destination distances)
-            actual-cells (g/cells-on-path grid origin solved-path)]
-        (is (= path solved-path))
-        (is (= expected-cells actual-cells))
-        (is (= origin (first actual-cells)))
-        (is (= destination (last actual-cells)))))))
+    (let [solved-path (::d/path (d/solve grid origin destination))
+          actual-cells (g/cells-on-path grid origin solved-path)]
+      (is (= path solved-path)
+          "path direction list should be correct")
+      (is (= expected-cells actual-cells)
+          "cells along path should be correct")
+      (is (= origin (first actual-cells))
+          "origin should be the first cell")
+      (is (= destination (last actual-cells))
+          "destination should be the last cell"))))
 

@@ -5,6 +5,7 @@
             [mazes.grid :as g]
             [mazes.renderers.core :as r]
             [mazes.renderers.svg.core :as svg]
+            [mazes.renderers.svg.dijkstra]
             [test.mazes.helpers :refer [has-values? equal-numbers? ≈]]
             [com.rpl.specter :as s]
             [com.rpl.specter.macros :as sm]))

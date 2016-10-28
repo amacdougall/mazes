@@ -10,7 +10,8 @@
 (spec/def ::unvisited (spec/coll-of ::g/cell :kind set?))
 (spec/def ::distances (spec/map-of ::g/cell ::distance :conform-keys true))
 (spec/def ::step-values (spec/keys :req [::g/grid ::unvisited ::distances ::current]))
-(spec/def ::path (spec/coll-of ::direction :kind sequential?))
+(spec/def ::path-step (spec/tuple ::g/cell ::g/direction))
+(spec/def ::path (spec/coll-of ::path-step :kind sequential?))
 
 (def infinite-distance #?(:clj Integer/MAX_VALUE, :cljs js/Infinity))
 
@@ -61,6 +62,38 @@
   :args (spec/cat :values ::step-values)
   :ret ::step-values)
 
+;; True if unvisited set contains no reachable cells, based on distances map.
+(defn- all-cells-visited? [unvisited distances]
+  (or (empty? unvisited)
+      (every? (partial = infinite-distance)
+              (vals (select-keys distances unvisited)))) )
+
+(defn compute-path
+  "Given a grid, an origin cell, a destination cell, and a distance map
+  produced by the solve function, returns a collection of ::path-step items
+  showing the most efficient route from the start cell to the end cell. If
+  there is no path from the origin to the destination, returns nil.
+  
+  This path is included for free in the result of the solve function, but it
+  may be useful to use this function when interpreting the results of the step
+  function, as in an interactive visualization."
+  [grid origin destination distances]
+  (if (= infinite-distance (get distances destination))
+    nil
+    (loop [cell destination, path []]
+      (if (= cell origin)
+        (reverse (map g/converse-directions path))
+        ; among neighbors, find direction which has the lowest distance in distances
+        (let [exits (::g/exits cell)
+              ; a map of cells to exits
+              neighbors (zipmap (map (partial g/move grid cell) exits) exits)
+              next-cell (key (apply min-key val (select-keys distances (keys neighbors))))
+              direction (neighbors next-cell)]
+          (recur next-cell (conj path direction)))))))
+(spec/fdef solve
+  :args (spec/cat :grid ::g/grid :origin ::g/cell :destination (spec/? (spec/nilable ::g/cell)))
+  :ret ::path)
+
 (defn solve
   "Given a grid and an origin cell, uses Dijkstra's algorithm to generate a map
   with the following key:
@@ -72,11 +105,11 @@
   Given a grid, an origin cell, and a destination cell, returns a map with the
   following keys:
 
-  :distances - a distance map which is guaranteed to contain the shortest
+  ::distances - a distance map which is guaranteed to contain the shortest
   distance for the destination cell, but may not have distances for any other
   cells.
 
-  TODO :path - a sequence of [cell direction] pairs, representing the cells along
+  ::path - a sequence of [cell direction] pairs, representing the cells along
   the solution path, and the directions to move to follow the path.
 
   In either case, the distance map may contain unreachable cells. Check for the
@@ -88,42 +121,24 @@
    ;; unreachable.
    (let [complete? (if (nil? destination)
                      ; true when all reachable cells have been visited
-                     (fn [distances unvisited]
-                       (or (empty? unvisited)
-                           (every? (partial = infinite-distance)
-                                   (vals (select-keys distances unvisited)))))
-                     ; true when the destination cell has been visited
-                     (fn [distances unvisited]
-                       (not (contains? unvisited destination))))]
+                     all-cells-visited?
+                     ; true when the destination cell has been visited, or all
+                     ; reachable cells have been visited
+                     (fn [unvisited distances]
+                       (or (not (contains? unvisited destination))
+                           (all-cells-visited? unvisited distances))))]
      (loop [{:keys [::distances ::unvisited] :as values} (get-initial-values grid origin)]
-       (if (complete? distances unvisited)
-         {::distances distances}
+       (if (complete? unvisited distances)
+         (let [solution {::distances distances}]
+           ; if destination was not needed or not found, return only distances;
+           ; otherwise, compute a solution path.
+           (if (or (nil? destination)
+                   (contains? unvisited destination))
+             solution
+             (let [path (compute-path grid origin destination distances)]
+               (assoc solution ::path path ::path-steps (g/path-with-cells grid origin path)))))
          (recur (step values)))))))
 (spec/fdef solve
   :args (spec/cat :grid ::g/grid :origin ::g/cell :destination (spec/? (spec/nilable ::g/cell)))
   :ret ::distances)
 
-(defn path
-  "Given a grid, an origin cell, a destination cell, and optionally a distance
-  map produced by the solve function, returns a collection of ::g/direction
-  items showing the most efficient route from the start cell to the end cell.
-
-  The optional distances argument permits us to generate a distance map and
-  then build a path without running the algorithm twice. If a distance map is
-  not provided, this function runs Dijkstra's Algorithm on its own account."
-  ([grid origin destination]
-   (path grid origin destination (::distances (solve grid origin destination))))
-  ([grid origin destination distances]
-   (loop [cell destination, path []]
-     (if (= cell origin)
-       (reverse (map g/converse-directions path))
-       ; among neighbors, find direction which has the lowest distance in distances
-       (let [exits (::g/exits cell)
-             ; a map of cells to exits
-             neighbors (zipmap (map (partial g/move grid cell) exits) exits)
-             next-cell (key (apply min-key val (select-keys distances (keys neighbors))))
-             direction (neighbors next-cell)]
-         (recur next-cell (conj path direction)))))))
-(spec/fdef solve
-  :args (spec/cat :grid ::g/grid :origin ::g/cell :destination (spec/? (spec/nilable ::g/cell)))
-  :ret ::path)

@@ -42,6 +42,9 @@
    ::w ::e
    ::nw ::se})
 
+(defn coordinates [cell]
+  [(::x cell) (::y cell)])
+
 (defn column-count
   "Given a grid, returns the number of columns in the grid."
   [grid]
@@ -204,3 +207,12 @@
 (spec/fdef cells-on-path
   :args (spec/cat :grid ::grid :cell ::cell :path (spec/coll-of ::direction)
                   :result (spec/? (spec/coll-of ::cell))))
+
+(defn path-with-cells
+  "Given a grid, an origin cell, and a sequence of directions, returns a
+  sequence of [cell direction] pairs representing the cells along that path.
+  Takes no account of whether the cells have linked exits in those directions."
+  [grid origin path]
+  ; we conj a nil onto the path so there are an equal number of cells and
+  ; directions; after all, the destination cell has no exit direction.
+  (partition 2 (interleave (cells-on-path grid origin path) (conj path nil))))

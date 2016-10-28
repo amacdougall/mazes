@@ -24,11 +24,11 @@
 ;; environment; or more accurately, when constructing the :solution value in
 ;; the re-frame app-db.
 (defmethod render-cell :dijkstra
-  [{{:keys [::d/distances ::d/path ::d/current ::d/unvisited]} :annotations :as render-env} cell]
+  [{{:keys [::d/distances ::d/path-steps ::d/current ::d/unvisited]} :annotations :as render-env} cell]
   (let [has-distance (and (not (nil? distances)) (contains? distances cell))
         is-current (= cell current)
         is-unvisited (contains? unvisited cell)
-        on-path (and (not (nil? path)) (some (partial = cell) (map first path)))
+        on-path (and (not (nil? path-steps)) (some (partial = cell) (map first path-steps)))
         render-env (merge render-env
                           (when is-unvisited unvisited-highlight)
                           (when is-current current-highlight)

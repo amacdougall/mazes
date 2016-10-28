@@ -7,11 +7,6 @@
               [com.rpl.specter :as s])
     (:require-macros [com.rpl.specter.macros :as sm]))
 
-(defn- path-with-cells [grid origin path]
-  ; we conj a nil onto the path so there are an equal number of cells and
-  ; directions; after all, the destination cell has no exit direction.
-  (partition 2 (interleave (g/cells-on-path grid origin path) (conj path nil))))
-
 (re-frame/reg-event-db
  :initialize-db
  (fn  [_ _]
@@ -51,9 +46,11 @@
         (let [{:keys [::d/unvisited ::d/distances] :as step-values} (d/step solution)]
           (if (not (contains? unvisited destination))
             ; if destination has been visited, solution is complete; add a path
+            ; TODO: update this in a less ugly fashion
             (assoc db :solution
-                   (assoc step-values ::d/path
-                          (path-with-cells grid origin (d/path grid origin destination distances))))
+                   (assoc step-values ::d/path-steps
+                          (g/path-with-cells grid origin
+                                             (d/compute-path grid origin destination distances))))
             ; if destination has not been visited, just register the step
             (assoc db :solution step-values)))))))
 
@@ -63,7 +60,7 @@
     (let [origin (g/find-cell grid 0 0)
           destination (g/find-cell grid (dec (g/column-count grid)) (dec (g/row-count grid)))
           distances (::d/distances (d/solve grid origin destination))
-          path (path-with-cells grid origin (d/path grid origin destination distances))]
+          path (g/path-with-cells grid origin (d/path grid origin destination distances))]
       (assoc db :solution {::d/distances distances
                            ::d/path path}))))
 
