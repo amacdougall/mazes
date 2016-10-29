@@ -18,9 +18,10 @@
 ;; vanishingly unlikely, but increasing it too far also makes the algorithm run
 ;; very slowly. 5x5 seemed like an acceptable compromise.
 ;;
-;; TODO: use test selectors to choose when to run this or other costly tests.
-;; http://stackoverflow.com/questions/23017733/make-a-slow-test-suite-with-clojure-test
-(deftest test-generate
+;; The :slow metadata ties in with :test-selectors in project.clj. Add the
+;; :slow param to lein test to run :slow tests specifically, or :all to run all
+;; tests.
+(deftest ^:slow test-generate
   (let [grid (g/create-grid 5 5)
         maze (aldous-broder/generate grid)
         origin (g/find-cell maze 0 0)

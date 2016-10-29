@@ -25,7 +25,10 @@
               [lein-figwheel "0.5.4-3"]]
     :test-refresh {:notify-command ["lein-test-refresh-notify"]
                    :notify-on-success true
-                   :quiet true}}}
+                   :quiet true}
+    :test-selectors {:default (complement :slow)
+                     :slow :slow
+                     :all (constantly true)}}}
   :cljsbuild
   {:builds
    [{:id           "dev"
