@@ -4,7 +4,8 @@
   (:require [mazes.grid :as g]
             [mazes.algorithms.dijkstra :refer [infinite-distance] :as d]
             [mazes.renderers.core :refer [render-cell]]
-            [mazes.renderers.svg.core :as svg]))
+            [mazes.renderers.svg.core :as svg]
+            [thi.ng.color.core :as c]))
 
 (defn- cell-has-distance? [cell distances]
   (and (contains? distances cell)
@@ -22,19 +23,31 @@
 (defn- unvisited-highlight []
   {:rect-attributes {:fill "gray", :stroke "gray"}})
 
-(defn- distance-highlight [distance]
-  {:rect-attributes {:fill "white", :stroke "white"}})
+(defn- distance-highlight [distance max-distance]
+  (if (= infinite-distance distance)
+    {:rect-attributes {:fill "gray", :stroke "gray"}}
+    ; begin at 0 brightness and increase as we near the greatest known
+    ; distance; this means that cells will fade as we explore the grid
+    (let [distance-color @(-> (c/css "#ff0000")
+                            ; adjust-brightness -1 removes all brightness
+                            (c/adjust-brightness (- (/ distance max-distance) 1))
+                            (c/as-css))]
+      {:rect-attributes {:fill distance-color
+                         :stroke distance-color}})
+    )
+  )
 
 (def infinite-distance-text "-")
 
 (defmethod render-cell :dijkstra
   [{{:keys [::d/distances ::d/path-steps ::d/current ::d/unvisited]} :annotations :as render-env} cell]
   (let [has-distance (and (not (nil? distances)) (contains? distances cell))
+        max-distance (apply max (remove (partial = infinite-distance) (vals distances)))
         is-current (= cell current)
-        is-unvisited (contains? unvisited cell)
         on-path (and (not (nil? path-steps)) (some (partial = cell) (map first path-steps)))
         render-env (merge render-env
-                          (when is-unvisited (unvisited-highlight))
+                          (when has-distance (distance-highlight (get distances cell)
+                                                                 max-distance))
                           (when is-current (current-highlight))
                           (when on-path (path-highlight)))
         output (svg/render-cell render-env cell)

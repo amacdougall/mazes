@@ -61,15 +61,6 @@
             "cells on the solution path should have the path highlight stroke")))
     (testing "unreachable cell"
       (let [{:keys [rect text]} (r/render-cell render-env unreachable)]
-        (prn (format "unreachable cell: distance %d"
-                     (get (::d/distances solution) unreachable)))
         (is (not (nil? text)))
         (is (= d-svg/infinite-distance-text (last text))
-            "unvisited cells should have the infinite-distance text")
-        (is (= (-> (unvisited-highlight) :rect-attributes :fill)
-               (-> rect svg/attributes :fill))
-            "unvisited cells should have the unvisited highlight fill")
-        (is (= (-> (unvisited-highlight) :rect-attributes :stroke)
-               (-> rect svg/attributes :stroke))
-            "unvisited cells should have the unvisited highlight stroke")))
-    ))
+            "unvisited cells should have the infinite-distance text")))))
