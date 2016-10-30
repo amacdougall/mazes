@@ -101,14 +101,24 @@
         p-maze (g/link maze (g/find-cell maze 3 1) ::g/s)
         p-maze (g/link-path p-maze (g/find-cell p-maze 0 2) [::g/s ::g/e])]
     (testing "with a target destination"
+      (testing "solution properties"
+        (let [origin (g/find-cell maze 0 0)
+              destination (g/find-cell maze 3 3)
+              solution (d/solve maze origin destination)]
+          (is (contains? solution ::d/distances))
+          (is (contains? solution ::d/unvisited))
+          (is (contains? solution ::d/path))
+          (is (contains? solution ::d/path-steps))))
       (testing "with unreachable cells"
         (let [origin (g/find-cell maze 0 0)
               destination (g/find-cell maze 3 3) ; bottom right
-              distances (::d/distances (d/solve maze origin destination))]
+              {:keys [::d/unvisited ::d/distances]} (d/solve maze origin destination)]
           (is (= 3 (count (unreachable distances)))
               "three cells should have been unreachable")
           (is (= infinite-distance (get distances (g/find-cell maze 0 3)))
               "bottom left cell should have been unreachable")
+          (is (contains? unvisited (g/find-cell maze 0 3))
+              "unreachable cell should be in the unvisited set")
           (is (= 8 (get distances destination)))))
       (testing "with no unreachable cells"
         ; fill in the gaps
@@ -120,22 +130,24 @@
       (testing "with a target destination that leaves cells unexplored"
         (let [origin (g/find-cell p-maze 0 0)
               destination (g/find-cell p-maze 2 2)
-              distances (::d/distances (d/solve grid origin destination))]
+              {:keys [::d/unvisited ::d/distances]} (d/solve grid origin destination)]
           (is (= infinite-distance (get distances (g/find-cell grid 0 3)))
               "cell beyond the destination should be unvisited")
+          (is (contains? unvisited (g/find-cell grid 0 3)))
           (is (= 6 (get distances destination)))))
       (testing "when destination cell is unreachable"
         (let [origin (g/find-cell grid 0 0)
               destination (g/find-cell grid 0 3) ; should be unreachable
               solution (d/solve maze origin destination)
-              distances (::d/distances solution)
-              path (::d/path solution)]
+              {:keys [::d/distances ::d/unvisited ::d/path]} solution]
           (is (= infinite-distance (get distances destination)))
+          (is (contains? unvisited destination))
           (is (nil? path)))))
     (testing "with no target destination"
       (let [origin (g/find-cell maze 1 1)
-            distances (::d/distances (d/solve maze origin))]
+            {:keys [::d/unvisited ::d/distances]} (d/solve maze origin)]
         (is (= 3 (count (unreachable distances))))
+        (is (= 3 (count unvisited)))
         (is (= 0 (get distances origin)))
         (is (= 1 (get distances (g/move maze origin ::g/n)))))
       (let [origin (g/find-cell p-maze 1 1)
@@ -166,4 +178,3 @@
           "origin should be the first cell")
       (is (= destination (last actual-cells))
           "destination should be the last cell"))))
-

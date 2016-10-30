@@ -12,31 +12,64 @@
 
 (stest/instrument)
 
+(def path-highlight #'mazes.renderers.svg.dijkstra/path-highlight)
+(def current-highlight #'mazes.renderers.svg.dijkstra/current-highlight)
+(def unvisited-highlight #'mazes.renderers.svg.dijkstra/unvisited-highlight)
+(def distance-highlight #'mazes.renderers.svg.dijkstra/distance-highlight)
+
 ;; NOTE: test calls mazes.renderers.core/render-cell, which is a multimethod.
 ;; The test specifically exercises the implementation provided by svg.dijkstra.
 (deftest test-render-cell
-  (let [grid (g/create-grid 2 2)
+  (let [grid (g/create-grid 3 3)
         grid (g/link-path grid (g/find-cell grid 0 0) [::g/e ::g/s ::g/w])
         origin (g/find-cell grid 0 0)
         destination (g/find-cell grid 0 1)
+        intermediate (g/find-cell grid 1 0)
+        unreachable (g/find-cell grid 2 0)
         solution (d/solve grid origin destination)
         annotations {:annotations (merge solution {:type :dijkstra})}
         render-env (merge (svg/render-environment grid) annotations)]
-    (let [{:keys [rect text]} (r/render-cell render-env origin)]
-      (is (not (nil? text)))
-      (is (= (get (::d/distances solution) origin) (last text)))
-      (is (= (-> d-svg/path-highlight :rect-attributes :fill)
-             (-> rect svg/attributes :fill))
-          "cells on the solution path should have the path highlight fill")
-      (is (= (-> d-svg/path-highlight :rect-attributes :stroke)
-             (-> rect svg/attributes :stroke))
-          "cells on the solution path should have the path highlight stroke"))
-    (let [{:keys [rect text]} (r/render-cell render-env destination)]
-      (is (not (nil? text)))
-      (is (= (get (::d/distances solution) destination) (last text)))
-      (is (= (-> d-svg/path-highlight :rect-attributes :fill)
-             (-> rect svg/attributes :fill))
-          "cells on the solution path should have the path highlight fill")
-      (is (= (-> d-svg/path-highlight :rect-attributes :stroke)
-             (-> rect svg/attributes :stroke))
-          "cells on the solution path should have the path highlight stroke"))))
+    (testing "origin cell"
+      (let [{:keys [rect text]} (r/render-cell render-env origin)]
+        (is (not (nil? text)))
+        (is (= (get (::d/distances solution) origin) (last text)))
+        (is (= (-> (path-highlight) :rect-attributes :fill)
+               (-> rect svg/attributes :fill))
+            "cell should have the path highlight fill")
+        (is (= (-> (path-highlight) :rect-attributes :stroke)
+               (-> rect svg/attributes :stroke))
+            "cell should have the path highlight stroke")))
+    (testing "destination cell"
+      (let [{:keys [rect text]} (r/render-cell render-env destination)]
+        (is (not (nil? text)))
+        (is (= (get (::d/distances solution) destination) (last text)))
+        (is (= (-> (path-highlight) :rect-attributes :fill)
+               (-> rect svg/attributes :fill))
+            "cell should have the path highlight fill")
+        (is (= (-> (path-highlight) :rect-attributes :stroke)
+               (-> rect svg/attributes :stroke))
+            "cell should have the path highlight stroke")))
+    (testing "intermediate cell on solution path"
+      (let [{:keys [rect text]} (r/render-cell render-env intermediate)]
+        (is (not (nil? text)))
+        (is (= (get (::d/distances solution) intermediate) (last text)))
+        (is (= (-> (path-highlight) :rect-attributes :fill)
+               (-> rect svg/attributes :fill))
+            "")
+        (is (= (-> (path-highlight) :rect-attributes :stroke)
+               (-> rect svg/attributes :stroke))
+            "cells on the solution path should have the path highlight stroke")))
+    (testing "unreachable cell"
+      (let [{:keys [rect text]} (r/render-cell render-env unreachable)]
+        (prn (format "unreachable cell: distance %d"
+                     (get (::d/distances solution) unreachable)))
+        (is (not (nil? text)))
+        (is (= d-svg/infinite-distance-text (last text))
+            "unvisited cells should have the infinite-distance text")
+        (is (= (-> (unvisited-highlight) :rect-attributes :fill)
+               (-> rect svg/attributes :fill))
+            "unvisited cells should have the unvisited highlight fill")
+        (is (= (-> (unvisited-highlight) :rect-attributes :stroke)
+               (-> rect svg/attributes :stroke))
+            "unvisited cells should have the unvisited highlight stroke")))
+    ))

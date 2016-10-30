@@ -96,21 +96,30 @@
 
 (defn solve
   "Given a grid and an origin cell, uses Dijkstra's algorithm to generate a map
-  with the following key:
+  with the following keys:
 
-  :distances - a map of the distances of each cell from the origin cell, in the
+  ::distances - a map of the distances of each cell from the origin cell, in the
   form {<cell> <int>, ...}. This map is guaranteed to have a distance for every
   reachable cell.
 
-  Given a grid, an origin cell, and a destination cell, returns a map with the
-  following keys:
+  ::unvisited - the set of cells which remain unvisited after the solution has
+  been produced.
+
+  Given a grid, an origin cell, and a destination cell, returns this map, with
+  the following keys:
 
   ::distances - a distance map which is guaranteed to contain the shortest
   distance for the destination cell, but may not have distances for any other
   cells.
 
-  ::path - a sequence of [cell direction] pairs, representing the cells along
-  the solution path, and the directions to move to follow the path.
+  ::unvisited - the set of cells which remain unvisited after the solution has
+  been produced.
+
+  ::path - a sequence of ::grid/direction keywords, representing the directions
+  to follow.
+
+  ::path-steps - a sequence of ::grid/path-step tuples showing the steps along
+  the path. The final step will have a nil direction.
 
   In either case, the distance map may contain unreachable cells. Check for the
   mazes.algorithms.dijkstra/infinite-distance value."
@@ -129,7 +138,7 @@
                            (all-cells-visited? unvisited distances))))]
      (loop [{:keys [::distances ::unvisited] :as values} (get-initial-values grid origin)]
        (if (complete? unvisited distances)
-         (let [solution {::distances distances}]
+         (let [solution {::distances distances ::unvisited unvisited}]
            ; if destination was not needed or not found, return only distances;
            ; otherwise, compute a solution path.
            (if (or (nil? destination)
