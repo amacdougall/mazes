@@ -62,40 +62,41 @@
   :ret int?)
 
 (defn grid-contains?
-  "True if the supplied x and y coordinates fall within the grid boundaries."
-  [grid x y]
+  "True if the supplied ::coordinates fall within the grid boundaries."
+  [grid [x y]]
   (and (<= 0 y)
        (<= 0 x)
        (< y (count grid))
        (< x (count (nth grid y)))))
 (spec/fdef grid-contains?
-  :args (spec/cat :grid ::grid :x ::x :y ::y)
+  :args (spec/cat :grid ::grid :coordinates ::coordinates)
   :ret boolean?)
 
 (defn create-cell
-  "Given x and y coordinates, returns a cell with x and y properties and an
+  "Given a ::coordinates tuple, returns a cell with x and y properties and an
   empty exits hash."
-  [x y]
+  [[x y]]
   {::x x, ::y y, ::exits #{}})
 (spec/fdef create-cell
-  :args (spec/cat :x ::x :y ::y)
+  :args (spec/cat :coordinates ::coordinates)
   :ret ::cell)
 
 (defn find-cell
-  "Given a grid and x and y coordinates, returns the cell at that location in
-  the grid. Returns nil if the coordinates are out of bounds."
-  [grid x y]
-  (if (grid-contains? grid x y)
+  "Given a grid and an [x y] ::coordinates tuple, returns the cell at that
+  location in the grid. Returns nil if the coordinates are out of bounds."
+  [grid [x y]]
+  (if (grid-contains? grid [x y])
     (-> grid (nth y) (nth x))
     nil))
 (spec/fdef find-cell
-  :args (spec/cat :grid ::grid :x ::x :y ::y)
+  :args (spec/cat :grid ::grid :coordinates ::coordinates)
   :ret (spec/nilable ::cell))
 
 (defn random-cell
   "Given a grid, returns a random cell."
   [grid]
-  (find-cell grid (rand-int (dec (column-count grid))) (rand-int (dec (row-count grid)))))
+  (find-cell grid [(rand-int (dec (column-count grid)))
+                   (rand-int (dec (row-count grid)))]))
 (spec/fdef random-cell
   :args (spec/cat :grid ::grid)
   :ret ::cell)
@@ -112,7 +113,7 @@
   "Returns a grid of unconnected cells with the supplied number of columns
   (i.e. width) and rows (i.e. height)."
   [width height]
-  (->> (for [y (range 0 height) x (range 0 width)] (create-cell x y))
+  (->> (for [y (range 0 height) x (range 0 width)] (create-cell [x y]))
     (partition width)
     (mapv (partial into []))))
 (spec/fdef create-grid
@@ -123,7 +124,7 @@
 (defn move [grid cell direction]
   (let [{ax ::x ay ::y} cell
         [bx by] (map + [ax ay] (direction translations))]
-    (find-cell grid bx by)))
+    (find-cell grid [bx by])))
 (spec/fdef move
   :args (spec/cat :grid ::grid :cell ::cell :direction ::direction)
   :ret (spec/nilable ::cell))
@@ -141,7 +142,7 @@
   the following row, or nil."
   [grid cell]
   (or (move grid cell ::e)
-      (find-cell grid 0 (inc (::y cell)))
+      (find-cell grid [0 (inc (::y cell))])
       nil))
 (spec/fdef next-cell
   :args (spec/cat :grid ::grid :cell ::cell)

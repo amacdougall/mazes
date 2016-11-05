@@ -21,11 +21,11 @@
 ;; The test specifically exercises the implementation provided by svg.dijkstra.
 (deftest test-render-cell
   (let [grid (g/create-grid 3 3)
-        grid (g/link-path grid (g/find-cell grid 0 0) [::g/e ::g/s ::g/w])
-        origin (g/find-cell grid 0 0)
-        destination (g/find-cell grid 0 1)
-        intermediate (g/find-cell grid 1 0)
-        unreachable (g/find-cell grid 2 0)
+        grid (g/link-path grid (g/find-cell grid [0 0]) [::g/e ::g/s ::g/w])
+        origin (g/find-cell grid [0 0])
+        destination (g/find-cell grid [0 1])
+        intermediate (g/find-cell grid [1 0])
+        unreachable (g/find-cell grid [2 0])
         solution (d/solve grid origin destination)
         annotations {:annotations (merge solution {:type :dijkstra})}
         render-env (merge (svg/render-environment grid) annotations)]

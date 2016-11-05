@@ -24,8 +24,9 @@
 (deftest ^:slow test-generate
   (let [grid (g/create-grid 5 5)
         maze (aldous-broder/generate grid)
-        origin (g/find-cell maze 0 0)
-        destination (g/find-cell maze (dec (g/row-count grid)) (dec (g/column-count grid)))]
+        origin (g/find-cell maze [0 0])
+        destination (g/find-cell maze [(dec (g/row-count grid))
+                                       (dec (g/column-count grid))])]
     (is (spec/valid? ::g/grid maze))
     (let [{:keys [::d/distances ::d/path ::d/path-steps] :as solution}
           (d/solve maze origin destination)]

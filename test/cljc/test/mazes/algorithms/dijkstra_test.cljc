@@ -15,9 +15,9 @@
   (testing "simple maze"
     (let [grid (g/create-grid 2 2)
           path [::g/e ::g/s ::g/w]
-          grid (g/link-path grid (g/find-cell grid 0 0) path)
-          grid (g/link grid (g/find-cell grid 1 1) ::g/w)
-          origin (g/find-cell grid 0 0)
+          grid (g/link-path grid (g/find-cell grid [0 0]) path)
+          grid (g/link grid (g/find-cell grid [1 1]) ::g/w)
+          origin (g/find-cell grid [0 0])
           expected-cells (g/cells-on-path grid origin path)
           initial-values (get-initial-values grid origin)]
       (testing "first step"
@@ -27,7 +27,7 @@
               "unvisited set should shrink by one")
           (is (not (contains? (::d/unvisited result) origin))
               "origin cell should be visited")
-          (is (= (::d/current result) (g/find-cell grid 1 0))
+          (is (= (::d/current result) (g/find-cell grid [1 0]))
               "northeast cell should be the new current")))
       (testing "second step"
         (let [result (nth (iterate d/step initial-values) 2)]
@@ -37,9 +37,9 @@
           (is (not (contains? (::d/unvisited result) origin))
               "origin cell should be visited")
           (is (not (contains? (::d/unvisited result)
-                              (g/find-cell grid 1 0)))
+                              (g/find-cell grid [1 0])))
               "cell east of origin should be visited")
-          (is (= (::d/current result) (g/find-cell grid 1 1))
+          (is (= (::d/current result) (g/find-cell grid [1 1]))
               "southeast cell should be current")
           (is (= 2 (get (::d/distances result)
                         (::d/current result)))
@@ -47,11 +47,11 @@
   (testing "complex maze"
     (let [grid (g/create-grid 3 3)
           path [::g/e ::g/s ::g/e ::g/s ::g/e]
-          grid (g/link-path grid (g/find-cell grid 0 0) path)
+          grid (g/link-path grid (g/find-cell grid [0 0]) path)
           ; give the center cell exits in each other direction
-          grid (g/link grid (g/find-cell grid 1 1) ::g/w)
-          grid (g/link grid (g/find-cell grid 1 1) ::g/s)
-          origin (g/find-cell grid 0 0)
+          grid (g/link grid (g/find-cell grid [1 1]) ::g/w)
+          grid (g/link grid (g/find-cell grid [1 1]) ::g/s)
+          origin (g/find-cell grid [0 0])
           expected-cells (g/cells-on-path grid origin path)
           initial-values (get-initial-values grid origin)]
       (testing "at a branching intersection"
@@ -62,7 +62,7 @@
           (is (empty? (filter (::d/unvisited result)
                               (take 2 expected-cells)))
               "first two cells along the solution path should be visited")
-          (is (= (::d/current result) (g/find-cell grid 1 1))
+          (is (= (::d/current result) (g/find-cell grid [1 1]))
               "center cell should be current")))
       (testing "after the branching intersection"
         ; As implemented, the algorithm will choose the member of the unvisited
@@ -84,7 +84,7 @@
           (is (every? (partial = 3)
                       (map (fn [cell] (get (::d/distances result) cell))
                            (filter (::d/unvisited result)
-                                   (g/linked-cells grid (g/find-cell grid 1 1)))))))))))
+                                   (g/linked-cells grid (g/find-cell grid [1 1])))))))))))
 
 (defn- unreachable [distances]
   (filter (partial = infinite-distance) (vals distances)))
@@ -94,63 +94,63 @@
   ; you should probably do the same.
   (let [grid (g/create-grid 4 4)
         path [::g/e ::g/s ::g/w ::g/s ::g/e ::g/e ::g/s ::g/e]
-        grid (g/link-path grid (g/find-cell grid 0 0) path)
+        grid (g/link-path grid (g/find-cell grid [0 0]) path)
         ; create a dead-end branch; many cells remain unreachable
-        maze (g/link-path grid (g/find-cell grid 1 0) [::g/e ::g/s ::g/e ::g/n])
+        maze (g/link-path grid (g/find-cell grid [1 0]) [::g/e ::g/s ::g/e ::g/n])
         ; fill in the gaps to create a perfect maze
-        p-maze (g/link maze (g/find-cell maze 3 1) ::g/s)
-        p-maze (g/link-path p-maze (g/find-cell p-maze 0 2) [::g/s ::g/e])]
+        p-maze (g/link maze (g/find-cell maze [3 1]) ::g/s)
+        p-maze (g/link-path p-maze (g/find-cell p-maze [0 2]) [::g/s ::g/e])]
     (testing "with a target destination"
       (testing "solution properties"
-        (let [origin (g/find-cell maze 0 0)
-              destination (g/find-cell maze 3 3)
+        (let [origin (g/find-cell maze [0 0])
+              destination (g/find-cell maze [3 3])
               solution (d/solve maze origin destination)]
           (is (contains? solution ::d/distances))
           (is (contains? solution ::d/unvisited))
           (is (contains? solution ::d/path))
           (is (contains? solution ::d/path-steps))))
       (testing "with unreachable cells"
-        (let [origin (g/find-cell maze 0 0)
-              destination (g/find-cell maze 3 3) ; bottom right
+        (let [origin (g/find-cell maze [0 0])
+              destination (g/find-cell maze [3 3]) ; bottom right
               {:keys [::d/unvisited ::d/distances]} (d/solve maze origin destination)]
           (is (= 3 (count (unreachable distances)))
               "three cells should have been unreachable")
-          (is (= infinite-distance (get distances (g/find-cell maze 0 3)))
+          (is (= infinite-distance (get distances (g/find-cell maze [0 3])))
               "bottom left cell should have been unreachable")
-          (is (contains? unvisited (g/find-cell maze 0 3))
+          (is (contains? unvisited (g/find-cell maze [0 3]))
               "unreachable cell should be in the unvisited set")
           (is (= 8 (get distances destination)))))
       (testing "with no unreachable cells"
         ; fill in the gaps
-        (let [origin (g/find-cell p-maze 0 0)
-              destination (g/find-cell p-maze 3 3)
+        (let [origin (g/find-cell p-maze [0 0])
+              destination (g/find-cell p-maze [3 3])
               distances (::d/distances (d/solve p-maze origin destination))]
           (is (empty? (unreachable distances)))
           (is (= 8 (get distances destination)))))
       (testing "with a target destination that leaves cells unexplored"
-        (let [origin (g/find-cell p-maze 0 0)
-              destination (g/find-cell p-maze 2 2)
+        (let [origin (g/find-cell p-maze [0 0])
+              destination (g/find-cell p-maze [2 2])
               {:keys [::d/unvisited ::d/distances]} (d/solve grid origin destination)]
-          (is (= infinite-distance (get distances (g/find-cell grid 0 3)))
+          (is (= infinite-distance (get distances (g/find-cell grid [0 3])))
               "cell beyond the destination should be unvisited")
-          (is (contains? unvisited (g/find-cell grid 0 3)))
+          (is (contains? unvisited (g/find-cell grid [0 3])))
           (is (= 6 (get distances destination)))))
       (testing "when destination cell is unreachable"
-        (let [origin (g/find-cell grid 0 0)
-              destination (g/find-cell grid 0 3) ; should be unreachable
+        (let [origin (g/find-cell grid [0 0])
+              destination (g/find-cell grid [0 3]) ; should be unreachable
               solution (d/solve maze origin destination)
               {:keys [::d/distances ::d/unvisited ::d/path]} solution]
           (is (= infinite-distance (get distances destination)))
           (is (contains? unvisited destination))
           (is (nil? path)))))
     (testing "with no target destination"
-      (let [origin (g/find-cell maze 1 1)
+      (let [origin (g/find-cell maze [1 1])
             {:keys [::d/unvisited ::d/distances]} (d/solve maze origin)]
         (is (= 3 (count (unreachable distances))))
         (is (= 3 (count unvisited)))
         (is (= 0 (get distances origin)))
         (is (= 1 (get distances (g/move maze origin ::g/n)))))
-      (let [origin (g/find-cell p-maze 1 1)
+      (let [origin (g/find-cell p-maze [1 1])
             solution (d/solve p-maze origin)
             distances (::d/distances solution)
             path (::d/path solution)]
@@ -162,11 +162,11 @@
 (deftest test-path
   (let [grid (g/create-grid 4 4)
         path [::g/e ::g/s ::g/w ::g/s ::g/e ::g/e ::g/s ::g/e]
-        grid (g/link-path grid (g/find-cell grid 0 0) path)
+        grid (g/link-path grid (g/find-cell grid [0 0]) path)
         ; add a dead end
-        grid (g/link-path grid (g/find-cell grid 1 0) [::g/e ::g/s ::g/e ::g/n])
-        origin (g/find-cell grid 0 0)
-        destination (g/find-cell grid 3 3)
+        grid (g/link-path grid (g/find-cell grid [1 0]) [::g/e ::g/s ::g/e ::g/n])
+        origin (g/find-cell grid [0 0])
+        destination (g/find-cell grid [3 3])
         expected-cells (g/cells-on-path grid origin path)]
     (let [solved-path (::d/path (d/solve grid origin destination))
           actual-cells (g/cells-on-path grid origin solved-path)]

@@ -13,7 +13,7 @@
       (if (contains? unvisited (g/coordinates next-cell))
         ; link from current cell to next, and move in the random direction
         (let [grid (g/link grid cell direction)
-              next-cell (g/find-cell grid (::g/x next-cell) (::g/y next-cell))]
+              next-cell (g/find-cell grid [(::g/x next-cell) (::g/y next-cell)])]
               ;; TODO: since grid is updated, we need the updated version of
               ;; next-cell as well. Come up with a better solution for this
               ;; kind of situation, since it will keep coming up.
@@ -28,7 +28,7 @@
   "Given a grid, returns a new grid with its cells linked to create a perfect
   maze."
   [grid]
-  (aldous-broder grid (g/find-cell grid 0 0) (set (map g/coordinates (g/all-cells grid)))))
+  (aldous-broder grid (g/find-cell grid [0 0]) (set (map g/coordinates (g/all-cells grid)))))
 (spec/fdef generate
   :args (spec/cat :grid ::g/grid)
   :ret ::g/grid)

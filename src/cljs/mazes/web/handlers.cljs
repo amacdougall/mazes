@@ -35,8 +35,9 @@
 (re-frame/reg-event-db
   :step-solution
   (fn [{:keys [grid solution] :as db} _]
-    (let [origin (g/find-cell grid 0 0)
-          destination (g/find-cell grid (dec (g/column-count grid)) (dec (g/row-count grid)))]
+    (let [origin (g/find-cell grid [0 0])
+          destination (g/find-cell grid [(dec (g/column-count grid))
+                                         (dec (g/row-count grid))])]
       (cond
         ; if not even a partial solution exists, begin one)
         (nil? solution) (assoc db :solution (d/get-initial-values grid origin))
@@ -59,9 +60,9 @@
   :solve-maze
   (fn [{grid :grid :as db} _]
     (assoc db :solution (d/solve grid
-                                 (g/find-cell grid 0 0)
-                                 (g/find-cell grid (dec (g/column-count grid))
-                                              (dec (g/row-count grid)))))))
+                                 (g/find-cell grid [0 0])
+                                 (g/find-cell grid [(dec (g/column-count grid))
+                                                    (dec (g/row-count grid))])))))
 
 (re-frame/reg-event-db
   :reset-solution

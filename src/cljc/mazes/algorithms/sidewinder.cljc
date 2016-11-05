@@ -27,7 +27,7 @@
   "Given a grid, returns a new grid with its cells linked to create a perfect
   maze."
   [grid]
-  (sidewinder grid [] (g/find-cell grid 0 0)))
+  (sidewinder grid [] (g/find-cell grid [0 0])))
 (spec/fdef generate
   :args (spec/cat :grid ::g/grid)
   :ret ::g/grid)

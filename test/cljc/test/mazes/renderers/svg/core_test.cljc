@@ -139,13 +139,13 @@
         columns 4
         grid (g/create-grid rows columns)
         render-env (render-environment grid)
-        top-left-cell (g/find-cell grid 0 0)
+        top-left-cell (g/find-cell grid [0 0])
         top-left (room-geometry render-env top-left-cell)
-        top-right-cell (g/find-cell grid (- rows 1) 0)
+        top-right-cell (g/find-cell grid [(- rows 1) 0])
         top-right (room-geometry render-env top-right-cell)
-        bottom-left-cell (g/find-cell grid 0 (- columns 1))
+        bottom-left-cell (g/find-cell grid [0 (- columns 1)])
         bottom-left (room-geometry render-env bottom-left-cell)
-        bottom-right-cell (g/find-cell grid (- rows 1) (- columns 1))
+        bottom-right-cell (g/find-cell grid [(- rows 1) (- columns 1)])
         bottom-right (room-geometry render-env bottom-right-cell)]
 
     (testing "return type"
@@ -191,16 +191,16 @@
   (let [grid (g/create-grid 1 1)]
     (testing "with default render-env"
       (let [render-env (render-environment grid)
-            rect (render-rect render-env (g/find-cell grid 0 0))]
+            rect (render-rect render-env (g/find-cell grid [0 0]))]
         (is (vector? rect))
         (is (= :rect (first rect)))
         (is (map? (last rect)))
-        (is (has-values? (room-geometry render-env (g/find-cell grid 0 0)) (last rect)))
+        (is (has-values? (room-geometry render-env (g/find-cell grid [0 0])) (last rect)))
         (is (has-values? default-rect-attributes (last rect)))))
 
     (testing "with custom :rect-attributes"
       (let [render-env (render-environment grid {:rect-attributes {:stroke-width 1}})
-            rect (render-rect render-env (g/find-cell grid 0 0))]
+            rect (render-rect render-env (g/find-cell grid [0 0]))]
         (is (has-values? {:stroke-width 1} (last rect)))))))
 
 (deftest test-anchor-point
@@ -216,10 +216,10 @@
 
 (deftest test-render-line
   (let [grid (g/create-grid 2 2)
-        grid (g/link grid (g/find-cell grid 0 0) ::g/e)
-        grid (g/link grid (g/find-cell grid 0 0) ::g/s)
+        grid (g/link grid (g/find-cell grid [0 0]) ::g/e)
+        grid (g/link grid (g/find-cell grid [0 0]) ::g/s)
         render-env (render-environment grid)
-        start-cell (g/find-cell grid 0 0)
+        start-cell (g/find-cell grid [0 0])
         start-room (room-geometry render-env start-cell)
         end-cell (g/move grid start-cell ::g/e)
         end-room (room-geometry render-env end-cell)
@@ -236,11 +236,11 @@
 ;; The test specifically exercises the implementation provided by svg.core.
 (deftest test-render-cell
   (let [grid (g/create-grid 2 2)
-        grid (g/link grid (g/find-cell grid 0 0) ::g/e)
-        grid (g/link grid (g/find-cell grid 0 0) ::g/s)
-        grid (g/link grid (g/find-cell grid 1 0) ::g/s)
+        grid (g/link grid (g/find-cell grid [0 0]) ::g/e)
+        grid (g/link grid (g/find-cell grid [0 0]) ::g/s)
+        grid (g/link grid (g/find-cell grid [1 0]) ::g/s)
         render-env (render-environment grid)
-        start-cell (g/find-cell grid 0 0)
+        start-cell (g/find-cell grid [0 0])
         start-room (room-geometry render-env start-cell)
         end-cell (g/move grid start-cell ::g/e)
         end-room (room-geometry render-env end-cell)]
@@ -256,8 +256,8 @@
 
 (deftest test-render
   (let [grid (g/create-grid 2 2)
-        grid (g/link grid (g/find-cell grid 0 0) ::g/e)
-        grid (g/link grid (g/find-cell grid 0 0) ::g/s)]
+        grid (g/link grid (g/find-cell grid [0 0]) ::g/e)
+        grid (g/link grid (g/find-cell grid [0 0]) ::g/s)]
     (testing "with default render environment"
       (let [render-env (render-environment grid)
             output (render render-env grid)]
