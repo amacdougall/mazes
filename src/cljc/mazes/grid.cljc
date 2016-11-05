@@ -48,6 +48,7 @@
   :args (spec/cat :cell ::cell)
   :ret ::coordinates)
 
+; TODO: implement this using the translations map instead
 (defn find-direction
   "If the origin and destination cells are adjacent, returns the direction of
   travel from origin to destination. If they are not adjacent, or if in fact

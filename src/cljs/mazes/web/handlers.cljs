@@ -2,6 +2,7 @@
     (:require [re-frame.core :as re-frame]
               [mazes.algorithms.sidewinder :as sidewinder]
               [mazes.algorithms.aldous-broder :as aldous-broder]
+              [mazes.algorithms.wilson :as wilson]
               [mazes.algorithms.dijkstra :as d]
               [mazes.grid :as g]
               [mazes.web.db :as db]
@@ -22,7 +23,7 @@
 (re-frame/reg-event-db
   :generate-maze
   (fn [{:keys [columns rows] :as db} [_ _]]
-    (let [maze (aldous-broder/generate (g/create-grid columns rows))]
+    (let [maze (wilson/generate (g/create-grid columns rows))]
       (assoc db :grid maze :solution nil))))
 
 (re-frame/reg-event-db
