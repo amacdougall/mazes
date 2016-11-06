@@ -54,6 +54,23 @@
     (let [cell (next-cell grid grid-end-cell)]
       (is (nil? cell)))))
 
+(deftest test-coordinates
+  (let [grid (create-grid 2 2)]
+    (is (= [0 0] (coordinates (find-cell grid [0 0]))))
+    (is (= [1 1] (coordinates (find-cell grid [1 1]))))))
+
+(deftest test-find-direction
+  (let [grid (create-grid 3 3)
+        center (find-cell grid [1 1])]
+    (is (= ::g/n (find-direction center (move grid center ::g/n))))
+    (is (= ::g/ne (find-direction center (move grid center ::g/ne))))
+    (is (= ::g/e (find-direction center (move grid center ::g/e))))
+    (is (= ::g/se (find-direction center (move grid center ::g/se))))
+    (is (= ::g/s (find-direction center (move grid center ::g/s))))
+    (is (= ::g/sw (find-direction center (move grid center ::g/sw))))
+    (is (= ::g/w (find-direction center (move grid center ::g/w))))
+    (is (= ::g/nw (find-direction center (move grid center ::g/nw))))))
+
 (deftest test-link
   (let [grid (create-grid 2 1)
         ; link the top left cell to its eastern neighbor

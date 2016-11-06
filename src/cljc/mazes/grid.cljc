@@ -44,6 +44,32 @@
 
 (defn coordinates [cell]
   [(::x cell) (::y cell)])
+(spec/fdef coordinates
+  :args (spec/cat :cell ::cell)
+  :ret ::coordinates)
+
+(defn find-direction
+  "If the origin and destination cells are adjacent, returns the direction of
+  travel from origin to destination. If they are not adjacent, or if in fact
+  they are the same cell, returns nil."
+  [{ax ::x ay ::y} {bx ::x by ::y}]
+  (let [dx (- bx ax)
+        dy (- by ay)]
+    (if (or (< 1 (Math/abs dx)) (< 1 (Math/abs dy))
+            (and (zero? dx) (zero? dy)))
+      nil
+      (condp = [dx dy]
+        [0 -1] ::n
+        [1 -1] ::ne
+        [1 0] ::e
+        [1 1] ::se
+        [0 1] ::s
+        [-1 1] ::sw
+        [-1 0] ::w
+        [-1 -1] ::nw))))
+(spec/fdef find-direction
+  :args (spec/cat :cell-a ::cell :cell-b ::cell)
+  :ret ::direction)
 
 (defn column-count
   "Given a grid, returns the number of columns in the grid."
