@@ -12,11 +12,9 @@
           next-cell (g/move grid cell direction)]
       (if (contains? unvisited (g/coordinates next-cell))
         ; link from current cell to next, and move in the random direction
+        ; NOTE: we need an updated next-cell, since the grid changes
         (let [grid (g/link grid cell direction)
-              next-cell (g/find-cell grid [(::g/x next-cell) (::g/y next-cell)])]
-              ;; TODO: since grid is updated, we need the updated version of
-              ;; next-cell as well. Come up with a better solution for this
-              ;; kind of situation, since it will keep coming up.
+              next-cell (g/find-cell grid (g/coordinates next-cell))]
           (recur grid next-cell (disj unvisited (g/coordinates next-cell))))
         ; already visited the next cell; move without linking
         (recur grid (g/move grid cell direction) unvisited)))))
