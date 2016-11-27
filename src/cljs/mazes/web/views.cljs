@@ -1,7 +1,7 @@
 (ns mazes.web.views
     (:require [re-frame.core :as re-frame :refer [subscribe dispatch]]
               [re-com.core :as re-com]
-              [mazes.algorithms.sidewinder :as sidewinder]
+              [mazes.generators.sidewinder :as sidewinder]
               [mazes.grid :as g]
               [mazes.renderers.svg.core :as svg]
               [mazes.renderers.svg.dijkstra]

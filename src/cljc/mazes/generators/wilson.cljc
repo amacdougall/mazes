@@ -2,7 +2,7 @@
 ;; coordinate tuples while we build the grid, because individual cell values
 ;; will quickly become obsolete as the algorithm creates successive versions of
 ;; the grid.
-(ns mazes.algorithms.wilson
+(ns mazes.generators.wilson
   "An implementation of Wilson's algorithm for maze generation."
   (:require [mazes.grid :as g]
             [clojure.set :refer [difference]]

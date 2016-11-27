@@ -1,10 +1,10 @@
-(ns test.mazes.algorithms.wilson-test
+(ns test.mazes.generators.wilson-test
   (:require [clojure.test :refer :all]
             [clojure.spec :as spec]
             [clojure.spec.test :as stest]
             [mazes.grid :as g]
-            [mazes.algorithms.wilson :as w]
-            [mazes.algorithms.dijkstra :as d]))
+            [mazes.generators.wilson :as w]
+            [mazes.pathfinders.dijkstra :as d]))
 
 (stest/instrument)
 

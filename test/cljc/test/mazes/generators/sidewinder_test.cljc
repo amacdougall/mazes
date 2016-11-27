@@ -1,9 +1,9 @@
-(ns test.mazes.algorithms.sidewinder-test
+(ns test.mazes.generators.sidewinder-test
   (:require [clojure.test :refer :all]
             [clojure.spec :as spec]
             [clojure.spec.test :as stest]
             [mazes.grid :as g]
-            [mazes.algorithms.sidewinder :as sidewinder]))
+            [mazes.generators.sidewinder :as sidewinder]))
 
 (stest/instrument)
 

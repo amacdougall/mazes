@@ -1,4 +1,4 @@
-(ns mazes.algorithms.aldous-broder
+(ns mazes.generators.aldous-broder
   "An implementation of the Aldous-Broder maze generation algorithm."
   (:require [mazes.grid :as g]
             [clojure.spec :as spec]))

@@ -1,11 +1,11 @@
-(ns test.mazes.algorithms.binary-tree-test
+(ns test.mazes.generators.binary-tree-test
   (:require [clojure.test :refer :all]
             [clojure.spec :as spec]
             [clojure.spec.test :as stest]
             [mazes.grid :as g]
-            [mazes.algorithms.core :as a]
-            [mazes.algorithms.binary-tree :as b]
-            [mazes.algorithms.dijkstra :as d]))
+            [mazes.generators.core :as a]
+            [mazes.generators.binary-tree :as b]
+            [mazes.pathfinders.dijkstra :as d]))
 
 (stest/instrument)
 

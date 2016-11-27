@@ -1,9 +1,9 @@
 (ns mazes.web.handlers
     (:require [re-frame.core :as re-frame]
-              [mazes.algorithms.sidewinder :as sidewinder]
-              [mazes.algorithms.aldous-broder :as aldous-broder]
-              [mazes.algorithms.wilson :as wilson]
-              [mazes.algorithms.dijkstra :as d]
+              [mazes.generators.sidewinder :as sidewinder]
+              [mazes.generators.aldous-broder :as aldous-broder]
+              [mazes.generators.wilson :as wilson]
+              [mazes.pathfinders.dijkstra :as d]
               [mazes.grid :as g]
               [mazes.web.db :as db]
               [com.rpl.specter :as s])

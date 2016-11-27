@@ -1,4 +1,4 @@
-(ns mazes.algorithms.dijkstra
+(ns mazes.pathfinders.dijkstra
   "An implementation of Dijkstra's algorithm for maze solving."
   (:require [mazes.grid :as g]
             [clojure.set :refer [union difference]]
@@ -122,7 +122,7 @@
   the path. The final step will have a nil direction.
 
   In either case, the distance map may contain unreachable cells. Check for the
-  mazes.algorithms.dijkstra/infinite-distance value."
+  mazes.pathfinders.dijkstra/infinite-distance value."
   ([grid origin]
    (solve grid origin nil))
   ([grid origin destination]

@@ -1,14 +1,14 @@
-(ns test.mazes.algorithms.dijkstra-test
+(ns test.mazes.pathfinders.dijkstra-test
   (:require [clojure.test :refer :all]
             [clojure.set :refer [intersection]]
             [clojure.spec :as spec]
             [clojure.spec.test :as stest]
             [mazes.grid :as g]
-            [mazes.algorithms.dijkstra :as d]))
+            [mazes.pathfinders.dijkstra :as d]))
 
 (stest/instrument)
 
-(def get-initial-values #'mazes.algorithms.dijkstra/get-initial-values)
+(def get-initial-values #'mazes.pathfinders.dijkstra/get-initial-values)
 (def infinite-distance #?(:clj Integer/MAX_VALUE, :cljs js/Infinity))
 
 (deftest test-step

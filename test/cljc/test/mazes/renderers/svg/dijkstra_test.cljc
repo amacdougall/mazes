@@ -1,7 +1,7 @@
 (ns test.mazes.renderers.svg.dijkstra-test
   (:require [clojure.test :refer :all]
             [clojure.spec.test :as stest]
-            [mazes.algorithms.dijkstra :as d]
+            [mazes.pathfinders.dijkstra :as d]
             [mazes.grid :as g]
             [mazes.renderers.core :as r]
             [mazes.renderers.svg.core :as svg]

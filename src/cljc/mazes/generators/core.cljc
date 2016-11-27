@@ -1,4 +1,4 @@
-(ns mazes.algorithms.core
+(ns mazes.generators.core
   "Top-level namespace defining properties used in maze generation algorithms."
   (:require [mazes.grid :as g]
             [clojure.spec :as spec]))

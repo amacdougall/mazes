@@ -1,10 +1,10 @@
-(ns test.mazes.algorithms.aldous-broder-test
+(ns test.mazes.generators.aldous-broder-test
   (:require [clojure.test :refer :all]
             [clojure.spec :as spec]
             [clojure.spec.test :as stest]
             [mazes.grid :as g]
-            [mazes.algorithms.aldous-broder :as aldous-broder]
-            [mazes.algorithms.dijkstra :as d]))
+            [mazes.generators.aldous-broder :as aldous-broder]
+            [mazes.pathfinders.dijkstra :as d]))
 
 (stest/instrument)
 

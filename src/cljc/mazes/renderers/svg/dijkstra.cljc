@@ -2,7 +2,7 @@
   "Provides an implementation of mazes.renderers.core/render-cell which applies
   additional formatting for solutions to Dijkstra's Algorithm."
   (:require [mazes.grid :as g]
-            [mazes.algorithms.dijkstra :refer [infinite-distance] :as d]
+            [mazes.pathfinders.dijkstra :refer [infinite-distance] :as d]
             [mazes.renderers.core :refer [render-cell]]
             [mazes.renderers.svg.core :as svg]
             [thi.ng.color.core :as c]))

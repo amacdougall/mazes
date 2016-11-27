@@ -1,4 +1,4 @@
-(ns mazes.algorithms.sidewinder
+(ns mazes.generators.sidewinder
   "An implementation of the sidewinder maze generation algorithm."
   (:require [mazes.grid :as g]
             [clojure.spec :as spec]))

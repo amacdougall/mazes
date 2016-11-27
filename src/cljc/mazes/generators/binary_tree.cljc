@@ -1,6 +1,6 @@
-(ns mazes.algorithms.binary-tree
+(ns mazes.generators.binary-tree
   "An implementation of the binary tree maze generation algorithm."
-  (:require [mazes.algorithms.core :as a]
+  (:require [mazes.generators.core :as a]
             [mazes.grid :as g]
             [clojure.spec :as spec]))
 
