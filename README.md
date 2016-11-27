@@ -5,4 +5,7 @@ Jamis Buck's book _Mazes for Programmers_.
 
 ## Usage
 
-Designed to be used entirely through tests and the REPL.
+To run tests, `lein test` or `lein test-refresh`. You may wish to alter the
+`:test-refresh` settings in project.clj.
+
+To run the demo webapp, `lein figwheel` and then load `localhost:3447` as usual.
