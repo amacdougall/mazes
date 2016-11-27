@@ -23,9 +23,7 @@
 (re-frame/reg-event-db
   :generate-maze
   (fn [{:keys [::g/columns ::g/rows] :as db} [_ _]]
-    (.log js/console "Generating maze %d x %d")
     (let [maze (wilson/generate (g/create-grid columns rows))]
-      (.log js/console "Maze: " (pr-str maze))
       (assoc db ::g/grid maze ::d/solution nil))))
 
 (re-frame/reg-event-db
