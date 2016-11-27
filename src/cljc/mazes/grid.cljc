@@ -7,8 +7,8 @@
 
 (spec/def ::x integer?)
 (spec/def ::y integer?)
-(spec/def ::width integer?)
-(spec/def ::height integer?)
+(spec/def ::columns integer?)
+(spec/def ::rows integer?)
 (spec/def ::coordinates (spec/tuple integer? integer?))
 (spec/def ::direction #{::n ::ne ::e ::se ::s ::sw ::w ::nw})
 
@@ -78,7 +78,7 @@
   (count (first grid)))
 (spec/fdef column-count
   :args (spec/cat :grid ::grid)
-  :ret int?)
+  :ret ::columns)
 
 (defn row-count
   "Given a grid, returns the number of rows in the grid."
@@ -86,7 +86,7 @@
   (count grid))
 (spec/fdef row-count
   :args (spec/cat :grid ::grid)
-  :ret int?)
+  :ret ::rows)
 
 (defn grid-contains?
   "True if the supplied ::coordinates fall within the grid boundaries."
@@ -137,14 +137,14 @@
   :ret (spec/coll-of ::cell))
 
 (defn create-grid
-  "Returns a grid of unconnected cells with the supplied number of columns
-  (i.e. width) and rows (i.e. height)."
-  [width height]
-  (->> (for [y (range 0 height) x (range 0 width)] (create-cell [x y]))
-    (partition width)
+  "Returns a grid of unconnected cells with the supplied width (in columns) and
+  height (in rows)."
+  [columns rows]
+  (->> (for [y (range 0 rows) x (range 0 columns)] (create-cell [x y]))
+    (partition columns)
     (mapv (partial into []))))
 (spec/fdef create-grid
-  :args (spec/cat :width integer? :height integer?)
+  :args (spec/cat :columns integer? :rows integer?)
   :ret ::grid)
 
 ;; Returns the cell in the supplied direction, or nil.

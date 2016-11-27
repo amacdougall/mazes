@@ -10,15 +10,15 @@
 ; TODO: CSS for everything
 
 (defn maze-svg []
-  (let [grid (subscribe [:grid])
+  (let [grid (subscribe [::g/grid])
         render-env (subscribe [:svg-render-environment])]
     (fn []
       (when (and @grid @render-env)
         (svg/render @render-env @grid)))))
 
 ;; Given a keypath such as [:top] or [:top :node :leaf], returns a slider which
-;; alters this value. Real-world example: [:columns], which is at the top level
-;; of the app db; [:rect-attributes :fill], which is one level down.
+;; alters this value. Real-world example: [::g/columns], which is at the top
+;; level of the app db; [:rect-attributes :fill], which is one level down.
 (defn slider [ks {:keys [label min max step]}]
   (let [value (subscribe [(first ks)])
         target-value (fn [top] (get-in top (rest ks)))]
@@ -71,8 +71,8 @@
    :gap "2.0rem"
    :children
    [[:h3 "Maze"]
-    [slider [:columns] {:label "Columns" :min 2 :max 20}]
-    [slider [:rows] {:label "Rows" :min 2 :max 20}]
+    [slider [::g/columns] {:label "Columns" :min 2 :max 20}]
+    [slider [::g/rows] {:label "Rows" :min 2 :max 20}]
     [re-com/button
      :label "Generate Maze"
      :on-click #(dispatch [:generate-maze])]
@@ -95,8 +95,7 @@
     [:h3 "Rooms"]
     [slider [:rect-attributes :stroke-width] {:label "Stroke Thickness" :min 1 :max 100}]
     [color [:rect-attributes :stroke] {:label "Stroke Color"}]
-    [color [:rect-attributes :fill] {:label "Fill Color"}]]]
-  )
+    [color [:rect-attributes :fill] {:label "Fill Color"}]]])
 
 (defn solution-controls []
   [re-com/v-box
