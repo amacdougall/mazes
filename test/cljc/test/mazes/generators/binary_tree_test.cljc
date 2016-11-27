@@ -21,15 +21,15 @@
         expected {::a/algorithm ::b/binary-tree
                   ::g/grid grid
                   ::g/cell (g/find-cell grid [0 0])}
-        actual (b/initial-values grid)]
+        actual (a/initial-values grid ::b/binary-tree)]
     (is (spec/valid? ::a/step-values actual))
     (is (= expected actual))))
 
 (deftest test-step
   (let [grid (g/create-grid 2 2)
-        initial-values (b/initial-values grid)
+        initial-values (a/initial-values grid ::b/binary-tree)
         initial-cell (::g/cell initial-values)
-        updated-values (b/step initial-values)]
+        updated-values (a/step initial-values)]
     (is (not= initial-values updated-values))
     (is (spec/valid? ::a/step-values updated-values))
     (is (= (g/next-cell grid initial-cell)
@@ -40,17 +40,17 @@
 
 (deftest test-complete?
   ; complete? is specced to require a true ::a/step-values
-  (let [step-values (b/initial-values (g/create-grid 2 2))]
-    (is (not (b/complete? step-values)))
-    (is (b/complete? (assoc step-values ::g/cell nil)))))
+  (let [step-values (a/initial-values (g/create-grid 2 2) ::b/binary-tree)]
+    (is (not (a/complete? step-values)))
+    (is (a/complete? (assoc step-values ::g/cell nil)))))
 
 (deftest test-result
-  (let [step-values (b/initial-values (g/create-grid 2 2))]
-    (is (= (::g/grid step-values) (b/result step-values)))))
+  (let [step-values (a/initial-values (g/create-grid 2 2) ::b/binary-tree)]
+    (is (= (::g/grid step-values) (a/result step-values)))))
 
 (deftest test-generate
   (let [grid (g/create-grid 5 5)
-        maze (b/generate grid)]
+        maze (a/generate grid ::b/binary-tree)]
     (is (spec/valid? ::g/grid maze))
     (let [origin (g/find-cell maze [0 0])
           destination (g/find-cell maze [(dec (g/row-count grid))

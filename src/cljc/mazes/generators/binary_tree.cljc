@@ -9,20 +9,16 @@
 
 (spec/def ::a/step-values (spec/multi-spec a/step-values ::a/algorithm))
 
-(defn initial-values
-  "Given a grid, returns a ::a/step-values representing the initial state of the
-  generation."
-  [grid]
+(defmethod a/initial-values ::binary-tree
+  [grid algorithm]
   {::a/algorithm ::binary-tree
    ::g/grid grid
    ::g/cell (g/find-cell grid [0 0])})
-(spec/fdef initial-values
-  :args (spec/cat :grid ::g/grid)
+(spec/fdef a/initial-values
+  :args (spec/cat :grid ::g/grid :algorithm ::a/algorithm)
   :ret ::a/step-values)
 
-(defn step
-  "Given a ::a/step-values, executes one step of the binary tree algorithm and
-  returns a new ::a/step-values representing the new state of the algorithm."
+(defmethod a/step ::binary-tree
   [{:keys [::g/grid ::g/cell] :as step-values}]
   (let [open-directions (filter (partial g/move grid cell) [::g/s ::g/e])]
     (assoc step-values
@@ -30,29 +26,24 @@
            ::g/grid (if (empty? open-directions)
                       grid
                       (g/link grid cell (rand-nth open-directions))))))
-(spec/fdef step
+(spec/fdef a/step
   :args (spec/cat :step-values ::a/step-values)
   :ret ::a/step-values)
 
-(defn complete?
-  "Given a ::a/step-values, returns true if the maze generation is complete."
+(defmethod a/complete? ::binary-tree
   [step-values]
   (nil? (::g/cell step-values)))
 
-(defn result
-  "Given a ::a/step-values, returns the final result of the maze generation; in
-  this case, a grid."
+(defmethod a/result ::binary-tree
   [step-values]
   (::g/grid step-values))
 
-(defn generate
-  "Given a grid, returns a new grid with its cells linked to create a perfect
-  maze."
-  [grid]
-  (loop [step-values (initial-values grid)]
-    (if (complete? step-values)
-      (result step-values)
-      (recur (step step-values)))))
+(defmethod a/generate ::binary-tree
+  [grid algorithm]
+  (loop [step-values (a/initial-values grid algorithm)]
+    (if (a/complete? step-values)
+      (a/result step-values)
+      (recur (a/step step-values)))))
 (spec/fdef generate
   :args (spec/cat :grid ::g/grid)
   :ret ::g/grid)
