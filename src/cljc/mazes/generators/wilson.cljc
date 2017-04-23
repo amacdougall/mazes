@@ -91,13 +91,13 @@
   "Performs a single step in Wilson's Algorithm."
   [{:keys [::g/grid ::current ::next ::unconnected] :as step-values}]
   (if (nil? next)
-    ; choose a random exit from current cell and retry
+    ; choose a random valid direction from current cell and retry
     (let [current-cell (g/find-cell grid current)
-          direction (g/random-exit grid current-cell)
+          direction (g/random-direction grid current-cell)
           next-cell (g/move grid current-cell direction)]
       (recur (assoc step-values ::next (g/coordinates next-cell))))
     (let [next-cell (g/find-cell grid next)
-          direction (g/random-exit grid next-cell)
+          direction (g/random-direction grid next-cell)
           step (step-function step-values)]
       (assoc (step step-values)
              ::current next

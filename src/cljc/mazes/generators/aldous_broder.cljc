@@ -8,7 +8,7 @@
   [grid cell unvisited]
   (if (empty? unvisited)
     grid ; visited all cells; return maze
-    (let [direction (g/random-exit grid cell)
+    (let [direction (g/random-direction grid cell)
           next-cell (g/move grid cell direction)]
       (if (contains? unvisited (g/coordinates next-cell))
         ; link from current cell to next, and move in the random direction

@@ -30,6 +30,10 @@
    ::w [-1 0]
    ::nw [-1 -1]})
 
+(def cardinal-directions #{::n ::e ::s ::w})
+(def ordinal-directions #{::ne ::se ::sw ::nw})
+(def directions (clojure.set/union cardinal-directions ordinal-directions))
+
 ;; When opening an exit in a direction, open a complementary exit from the
 ;; destination to maintain grid geometry.
 (def converse-directions
@@ -156,12 +160,19 @@
   :args (spec/cat :grid ::grid :cell ::cell :direction ::direction)
   :ret (spec/nilable ::cell))
 
-(defn random-exit
-  "Given a grid and a cell, returns a random possible exit from the cell."
-  [grid cell]
-  (rand-nth (remove #(nil? (move grid cell %)) [::n ::e ::s ::w])))
-(spec/fdef random-exit
-  :args (spec/cat :grid ::grid :cell ::cell)
+(defn random-direction
+  "Given a grid, a cell, and an optional direction set, returns a random
+  direction which leads to a valid cell. If no direction set is provided, the
+  direction is chosen from among the cardinal directions. Does not take the
+  cell's exits into account."
+  ([grid cell]
+   (random-direction grid cell cardinal-directions))
+  ([grid cell directions]
+   (rand-nth (remove #(nil? (move grid cell %)) directions))))
+(spec/fdef random-direction
+  :args (spec/cat :grid ::grid
+                  :cell ::cell
+                  :directions (spec/? (spec/coll-of ::direction)))
   :ret ::direction)
 
 (defn next-cell
@@ -241,7 +252,9 @@
             (rest path)
             (conj result cell)))))
 (spec/fdef cells-on-path
-  :args (spec/cat :grid ::grid :cell ::cell :path (spec/coll-of ::direction)
+  :args (spec/cat :grid ::grid
+                  :cell ::cell
+                  :path (spec/coll-of ::direction)
                   :result (spec/? (spec/coll-of ::cell))))
 
 (defn path-with-cells

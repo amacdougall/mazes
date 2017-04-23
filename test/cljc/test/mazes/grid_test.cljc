@@ -40,6 +40,23 @@
     (is (grid-contains? grid [rx ry]))
     (is (= random-cell (find-cell grid [rx ry])))))
 
+(deftest test-random-direction
+  (let [grid (create-grid 3 3)
+        cell (find-cell grid [1 1])]
+    (testing "without a directions set"
+      (let [d (random-direction grid cell)]
+        (is (not (nil? d))
+            "should return a direction")
+        (is (contains? cardinal-directions d)
+            "should return a cardinal direction")))
+    (testing "with a directions set"
+      (let [d-set ordinal-directions
+            d (random-direction grid cell d-set)]
+        (is (not (nil? d))
+            "should return a direction")
+        (is (contains? d-set d)
+            "should return a direction from the set")))))
+
 (deftest test-next-cell
   (let [grid (create-grid 2 2)
         first-cell (find-cell grid [0 0])
