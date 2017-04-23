@@ -1,3 +1,7 @@
+;; NOTE: As with all the maze generation algorithms, we store grid cells as
+;; coordinate tuples while we build the grid, because individual cell values
+;; will quickly become obsolete as the algorithm creates successive versions of
+;; the grid.
 (ns mazes.generators.aldous-broder
   "An implementation of the Aldous-Broder maze generation algorithm."
   (:require [mazes.grid :as g]
