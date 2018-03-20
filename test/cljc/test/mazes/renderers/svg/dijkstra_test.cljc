@@ -1,6 +1,6 @@
 (ns test.mazes.renderers.svg.dijkstra-test
   (:require [clojure.test :refer :all]
-            [clojure.spec.test :as stest]
+            [clojure.spec.test.alpha :as stest]
             [mazes.pathfinders.dijkstra :as d]
             [mazes.grid :as g]
             [mazes.renderers.core :as r]

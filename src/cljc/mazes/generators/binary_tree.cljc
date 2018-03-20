@@ -2,7 +2,7 @@
   "An implementation of the binary tree maze generation algorithm."
   (:require [mazes.generators.core :as a]
             [mazes.grid :as g]
-            [clojure.spec :as spec]))
+            [clojure.spec.alpha :as spec]))
 
 (defmethod a/step-values ::binary-tree [_]
   (spec/keys :req [::a/algorithm ::g/grid ::g/cell]))

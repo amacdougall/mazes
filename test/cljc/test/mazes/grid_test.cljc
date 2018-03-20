@@ -1,6 +1,6 @@
 (ns test.mazes.grid-test
   (:require [clojure.test :refer :all]
-            [clojure.spec.test :as stest]
+            [clojure.spec.test.alpha :as stest]
             [mazes.grid :refer :all :as g]))
 
 (stest/instrument)

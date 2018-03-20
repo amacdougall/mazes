@@ -1,7 +1,7 @@
 (ns test.mazes.renderers.svg.core-test
   (:require [clojure.algo.generic.math-functions :refer [approx=]]
             [clojure.test :refer :all]
-            [clojure.spec.test :as stest]
+            [clojure.spec.test.alpha :as stest]
             [hiccup.core :as hiccup]
             [mazes.grid :as g]
             [mazes.renderers.core :as r]

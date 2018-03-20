@@ -1,6 +1,6 @@
 (ns mazes.grid
   "Basic grid structure for maze wrangling."
-  (:require [clojure.spec :as spec]
+  (:require [clojure.spec.alpha :as spec]
             [com.rpl.specter :as s]
             #?(:clj [com.rpl.specter.macros :as sm]))
   #?(:cljs (:require-macros [com.rpl.specter.macros :as sm])))

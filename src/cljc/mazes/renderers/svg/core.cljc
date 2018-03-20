@@ -4,7 +4,7 @@
   (:require [mazes.grid :as g]
             [mazes.helpers :refer [deep-merge]]
             [mazes.renderers.core :as r]
-            [clojure.spec :as spec]
+            [clojure.spec.alpha :as spec]
             [com.rpl.specter :as s]
             #?(:clj [com.rpl.specter.macros :as sm :include-macros true]))
   #?(:cljs (:require-macros [com.rpl.specter.macros :as sm])))

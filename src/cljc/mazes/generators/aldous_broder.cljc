@@ -5,7 +5,7 @@
 (ns mazes.generators.aldous-broder
   "An implementation of the Aldous-Broder maze generation algorithm."
   (:require [mazes.grid :as g]
-            [clojure.spec :as spec]))
+            [clojure.spec.alpha :as spec]))
 
 ; NOTE: unvisited is a set of [x y] coordinate pairs!
 (defn aldous-broder

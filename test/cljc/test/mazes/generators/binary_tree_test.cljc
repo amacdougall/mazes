@@ -1,7 +1,7 @@
 (ns test.mazes.generators.binary-tree-test
   (:require [clojure.test :refer :all]
-            [clojure.spec :as spec]
-            [clojure.spec.test :as stest]
+            [clojure.spec.alpha :as spec]
+            [clojure.spec.test.alpha :as stest]
             [mazes.grid :as g]
             [mazes.generators.core :as a]
             [mazes.generators.binary-tree :as b]

@@ -1,7 +1,7 @@
 (ns mazes.generators.sidewinder
   "An implementation of the sidewinder maze generation algorithm."
   (:require [mazes.grid :as g]
-            [clojure.spec :as spec]))
+            [clojure.spec.alpha :as spec]))
 
 (def branch-chance 0.5)
 

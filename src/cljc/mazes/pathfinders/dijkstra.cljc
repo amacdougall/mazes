@@ -2,7 +2,7 @@
   "An implementation of Dijkstra's algorithm for maze solving."
   (:require [mazes.grid :as g]
             [clojure.set :refer [union difference]]
-            [clojure.spec :as spec]))
+            [clojure.spec.alpha :as spec]))
 
 (spec/def ::current ::g/cell)
 (spec/def ::destination ::g/cell)

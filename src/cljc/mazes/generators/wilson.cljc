@@ -6,7 +6,7 @@
   "An implementation of Wilson's algorithm for maze generation."
   (:require [mazes.grid :as g]
             [clojure.set :refer [difference]]
-            [clojure.spec :as spec]))
+            [clojure.spec.alpha :as spec]))
 
 ;; These defs resemble the Dijkstra ones, but are distinct.
 (spec/def ::current ::g/coordinates)

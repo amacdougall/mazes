@@ -1,7 +1,7 @@
 (ns mazes.generators.core
   "Top-level namespace defining properties used in maze generation algorithms."
   (:require [mazes.grid :as g]
-            [clojure.spec :as spec]))
+            [clojure.spec.alpha :as spec]))
 
 (defmulti step-values ::algorithm)
 

@@ -3,17 +3,17 @@
   :url "http://example.com/"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[org.clojure/clojure "1.9.0-alpha12"],
+  :dependencies [[org.clojure/clojure "1.9.0"],
                  [com.rpl/specter "0.12.0"]
                  [hiccup "1.0.5"]
                  ; clojurescript
-                 [org.clojure/clojurescript "1.9.229"]
+                 [org.clojure/clojurescript "1.9.946"]
                  [reagent "0.6.0-rc"]
                  [re-frame "0.8.0"]
                  [re-com "0.8.3"]
                  [thi.ng/color "1.2.0"]]
   :source-paths ["src/clj", "src/cljc", "src/cljs"]
-  :plugins [[lein-cljsbuild "1.1.4"]]
+  :plugins [[lein-cljsbuild "1.1.7"]]
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"]
   :figwheel {:css-dirs ["resources/public/css"]}
   :profiles
@@ -23,7 +23,7 @@
                    [binaryage/devtools "0.6.1"]]
     :source-paths ["test/clj", "test/cljc"]
     :plugins [[com.jakemccrary/lein-test-refresh "0.10.0"]
-              [lein-figwheel "0.5.4-3"]]
+              [lein-figwheel "0.5.15"]]
     :test-refresh {:notify-command ["lein-test-refresh-notify"]
                    :notify-on-success true
                    :quiet true}

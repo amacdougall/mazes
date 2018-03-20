@@ -1,8 +1,8 @@
 (ns test.mazes.pathfinders.dijkstra-test
   (:require [clojure.test :refer :all]
             [clojure.set :refer [intersection]]
-            [clojure.spec :as spec]
-            [clojure.spec.test :as stest]
+            [clojure.spec.alpha :as spec]
+            [clojure.spec.test.alpha :as stest]
             [mazes.grid :as g]
             [mazes.pathfinders.dijkstra :as d]))
 
