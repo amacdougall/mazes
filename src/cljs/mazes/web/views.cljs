@@ -156,7 +156,12 @@
      :height "100%"
      :width "100%"
      :children
-     [[re-com/title :label "Mazes", :level :level1]
+     [[re-com/h-box
+       :children
+       [[re-com/title :label "Mazes", :level :level1]
+        [re-com/p
+         {:style {:margin-left "50px"}}
+         "Generate a random maze. Guaranteed to have a route from top left to bottom right. Use the Layout tab to customize the appearance. Use the Solution tab to solve it using Dijkstra's Algorithm."]]]
       [re-com/h-split
        :width "100%"
        :initial-split "25%"
