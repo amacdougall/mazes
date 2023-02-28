@@ -14,8 +14,8 @@
    :base-profile "full"
    :xmlns "http://www.w3.org/2000/svg"
    :width 1000
-   :height 800
-   :viewbox "0 0 1000 800"})
+   :height 650
+   :viewbox "0 0 1000 650"})
 
 (def default-stroke-attributes
   {:stroke "black"

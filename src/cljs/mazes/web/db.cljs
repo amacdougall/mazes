@@ -11,8 +11,8 @@
     ; svg rendering parameters
     svg/default-render-environment-options
     ; grid generation parameters
-    {::g/columns 4
-     ::g/rows 4
+    {::g/columns 8
+     ::g/rows 8
      ::g/grid nil
      ; maze generation algorithm (always sidewinder right now)
      ::a/algorithm :sidewinder
